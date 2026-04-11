@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { mapState, UMD_LOCATIONS } from '$lib/states/map.svelte';
 
-	let { showDropdown = false } = $props<{ showDropdown?: boolean }>();
+	let { showDropdown = true } = $props<{ showDropdown?: boolean }>();
 
 	const legendItems = [
 		{ label: 'Harmful (80+ dB)', color: '#f38ba8' },

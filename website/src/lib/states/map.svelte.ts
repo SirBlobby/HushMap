@@ -15,10 +15,11 @@ export const UMD_LOCATIONS: StudyLocation[] = [
 	{ id: 'clarice', name: 'Clarice Library', hasFloors: false, lng: -76.94967344225785, lat: 38.99029330703877 },
 	{ id: 'yahentamitsi', name: 'Yahentamitsi', hasFloors: false, lng: -76.9448027183373, lat: 38.99108961575231 },
 	{ id: 'iribe', name: 'Iribe', hasFloors: false, lng: -76.93643838603555, lat: 38.98933701397555 },
-	{ id: 'reckord', name: 'Reckord Armory', hasFloors: false, lng: -76.93897470250619, lat: 38.98609556181066 }
+	{ id: 'reckord', name: 'Reckord Armory', hasFloors: false, lng: -76.93897470250619, lat: 38.98609556181066 },
+	{ id: 'stamp', name: 'Stamp Student Union', hasFloors: true, floors: ['Basement', 'Floor 1', 'Floor 2'], lng: -76.94473083972326, lat: 38.988130238874874 }
 ];
 
-export const DEFAULT_VIEW = { lng: -76.9425, lat: 38.9859, zoom: 15.5 };
+export const DEFAULT_VIEW = { lng: -76.9425, lat: 38.9859, zoom: 16.5 };
 
 class MapState {
 	// The target coordinates the map should fly to

@@ -41,7 +41,7 @@
 			container: mapContainer,
 			style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
 			center: [-76.9425, 38.9859], // UMD McKeldin Mall
-			zoom: 15.5,
+			zoom: 16.5,
 			pitch: 0,
 			bearing: 0,
 			attributionControl: false
