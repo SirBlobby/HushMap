@@ -1,3 +1,59 @@
 @import 'tailwindcss';
-@plugin '@tailwindcss/forms';
-@plugin '@tailwindcss/typography';
+@theme {
+  --font-sans: 'Comic Relief', 'Comic Neue', 'Comic Sans MS', cursive, system-ui, sans-serif;
+  --font-display: 'Comic Relief', 'Comic Neue', 'Comic Sans MS', cursive, system-ui, sans-serif;
+
+  /* Catppuccin Theme */
+  --color-crust: #11111b;
+  --color-mantle: #181825;
+  --color-base: #1e1e2e;
+  --color-surface0: #313244;
+  --color-surface1: #45475a;
+  --color-surface2: #585b70;
+  --color-red: #f38ba8;
+
+  --color-neon-primary: #f38ba8;
+  --color-neon-alert: #f38ba8;
+  --color-neon-blue: #f38ba8;
+  --color-panel-glass: rgba(24, 24, 37, 0.7); /* Mantle Glass */
+
+  /* Glowing effects around elements */
+  --shadow-glow-primary: 0 0 15px rgba(243, 139, 168, 0.4);
+  --shadow-glow-alert: 0 0 15px rgba(243, 139, 168, 0.4);
+  --shadow-glow-blue: 0 0 15px rgba(243, 139, 168, 0.4);
+}
+
+.light-theme {
+  --color-crust: #ffffff; /* Pure white background */
+  --color-mantle: #cdd6f4;
+  --color-base: #bac2de;
+  --color-surface0: #9399b2; /* Darker buttons */
+  --color-surface1: #7f849c;
+  --color-surface2: #6c7086;
+  --color-red: #e07290; 
+  --color-neon-primary: #e07290; /* Darker Pink */
+  --color-neon-alert: #f38ba8; 
+  --color-neon-blue: #e07290; /* Darker Pink Accent */
+  --color-panel-glass: rgba(255, 255, 255, 0.95); /* Bright White Glass for sidebar */
+  color: #585b70 !important; /* Darkest Text */
+}
+
+/* Override text colors globally for light mode */
+.light-theme .text-white, .light-theme .text-slate-200, .light-theme .text-slate-300, .light-theme .text-slate-400, .light-theme .text-slate-500 {
+	color: #585b70 !important;
+}
+
+.light-theme border-white {
+	border-color: rgba(88, 91, 112, 0.1);
+}
+
+@utility glass-panel {
+  background-color: var(--color-panel-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@utility text-glow {
+  text-shadow: 0 0 10px currentColor;
+}

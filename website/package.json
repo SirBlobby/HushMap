@@ -12,7 +12,8 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@auth0/auth0-spa-js": "^2.19.0"
+		"@auth0/auth0-spa-js": "^2.19.0",
+		"maplibre-gl": "^5.0.1"
 	},
 	"devDependencies": {
 		"@iconify/svelte": "^5.2.1",
