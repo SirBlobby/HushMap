@@ -30,8 +30,6 @@
 			<span class="absolute left-full ml-4 px-2 py-1 bg-black/80 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none md:block hidden border border-white/10">History</span>
 		</a>
 
-		<div class="w-px h-6 md:w-6 md:h-px bg-white/10 my-2"></div>
-
 		<!-- Nav Item: Settings -->
 		<a href="/settings" class="relative flex items-center justify-center p-3 rounded-2xl transition-all duration-300 hover:bg-white/10 group {$page.url.pathname === '/settings' ? 'text-neon-blue drop-shadow-[0_0_10px_rgba(0,243,255,0.6)]' : 'text-slate-400 hover:text-white'}">
 			<Icon icon="mdi:cog-outline" class="text-2xl" />
