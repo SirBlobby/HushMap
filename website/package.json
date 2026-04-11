@@ -3,6 +3,7 @@
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
+		"start": "vite build && bun run server/app.ts",
 		"dev": "vite dev --host",
 		"build": "vite build",
 		"preview": "vite preview",
@@ -17,12 +18,13 @@
 	},
 	"devDependencies": {
 		"@iconify/svelte": "^5.2.1",
-		"@sveltejs/adapter-auto": "^7.0.1",
+		"@sveltejs/adapter-node": "^5.2.10",
 		"@sveltejs/kit": "^2.57.1",
 		"@sveltejs/vite-plugin-svelte": "^7.0.0",
 		"@tailwindcss/forms": "^0.5.11",
 		"@tailwindcss/typography": "^0.5.19",
 		"@tailwindcss/vite": "^4.2.2",
+		"@types/node": "^25.6.0",
 		"@vite-pwa/sveltekit": "^0.6.6",
 		"svelte": "^5.55.3",
 		"svelte-check": "^4.4.6",
