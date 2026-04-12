@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from pymongo import MongoClient
 
 
-MONGO_URI = "mongodb+srv://SarayuJ:SarayuJ123@cluster0.xjy5c.mongodb.net/testing"
+MONGO_URI = "mongodb+srv://SarayuJ:[EMAIL_ADDRESS]/testing"
 client = MongoClient(MONGO_URI)
 db = client.study_buddy_db
 collection = db.study_rooms

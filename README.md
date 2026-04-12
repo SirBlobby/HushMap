@@ -62,19 +62,4 @@ docker-compose up --build
 
 ---
 
-## Core Configuration
-
-Before starting services, strictly adhere to configuring your environment files (`.env`) within `/backend`:
-
-```ini
-ELEVENLABS_API_KEY=sk_...
-ELEVENLABS_VOICE_ID=JBFqnCBsd6RMkjVDRZzb
-TERP_AI_BEARER_TOKEN=eyJhbGciOiJSUz...
-TERP_AI_CONVERSATION_ID=3a150d8e-bb12-...
-MONGODB_URI=mongodb+srv://user:pass@cluster0...
-```
-
-> [!TIP]
-> Ensure the `.env` mirrors your authentic `x-cosmos-session` headers and bearer tokens exported from a live browser session to prevent immediate 401 Unauthorized timeouts in the Terp AI pipeline.
-
 For IoT clients, update `/m5go/main.py` explicitly to broadcast to your running router IP namespace matching your specific VLAN.
