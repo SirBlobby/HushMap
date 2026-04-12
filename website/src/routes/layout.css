@@ -43,7 +43,26 @@
 	color: #585b70 !important;
 }
 
-.light-theme .border-white {
+/* Color Blind (Protanopia/Deuteranopia safe swaps) */
+:root.color-blind {
+	--color-neon-primary: #ffb86c;
+	--color-neon-blue: #8be9fd;
+}
+
+/* High Contrast: Pitch black backgrounds and pure white texts */
+:root.high-contrast {
+	--color-crust: #000000;
+	--color-mantle: #0a0a0a;
+	--color-base: #111111;
+}
+
+:root.light-theme.high-contrast {
+	--color-crust: #ffffff;
+	--color-mantle: #f4f4f4;
+	--color-base: #ebebeb;
+}
+
+.light-theme border-white {
 	border-color: rgba(88, 91, 112, 0.1);
 }
 

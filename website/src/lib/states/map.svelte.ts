@@ -12,7 +12,7 @@ export const UMD_LOCATIONS: StudyLocation[] = [
 	{ id: 'mckeldin', name: 'McKeldin Library', hasFloors: true, floors: ['Floor 1', 'Floor 2', 'Floor 3', 'Floor 4', 'Floor 5', 'Floor 6', 'Floor 7'], lng: -76.94494907523277, lat: 38.986021017749366 },
 	{ id: 'hornbake', name: 'Hornbake Library', hasFloors: false, lng: -76.94161787005467, lat: 38.988233373664826 },
 	{ id: 'stem', name: 'STEM Library', hasFloors: false, lng: -76.93942003731279, lat: 38.988991437126195 },
-	{ id: 'clarice', name: 'Clarice Library', hasFloors: false, lng: -76.94967344225785, lat: 38.99029330703877 },
+	{ id: 'clarice', name: 'Clarice Library', hasFloors: false, lng: -76.9500912552473, lat: 38.990547823732285 },
 	{ id: 'yahentamitsi', name: 'Yahentamitsi', hasFloors: false, lng: -76.9448027183373, lat: 38.99108961575231 },
 	{ id: 'iribe', name: 'Iribe', hasFloors: false, lng: -76.93643838603555, lat: 38.98933701397555 },
 	{ id: 'reckord', name: 'Reckord Armory', hasFloors: false, lng: -76.93897470250619, lat: 38.98609556181066 },

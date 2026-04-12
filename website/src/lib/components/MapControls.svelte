@@ -1,15 +1,17 @@
 <script lang="ts">
 	import { mapState, UMD_LOCATIONS } from '$lib/states/map.svelte';
 
+	import { themeState } from '$lib/states/theme.svelte';
+
 	let { showDropdown = true } = $props<{ showDropdown?: boolean }>();
 
-	const legendItems = [
-		{ label: 'Harmful (80+ dB)', color: '#f38ba8' },
-		{ label: 'Disruptive (65-79 dB)', color: '#fab387' },
-		{ label: 'Manageable (55-64 dB)', color: '#f9e2af' },
-		{ label: 'Great (40-54 dB)', color: '#94e2d5' },
-		{ label: 'Ideal (0-39 dB)', color: '#89b4fa' }
-	];
+	const legendItems = $derived([
+		{ label: 'Harmful (80+ dB)', color: themeState.isColorBlindFriendly ? '#e66100' : '#f38ba8' },
+		{ label: 'Disruptive (65-79 dB)', color: themeState.isColorBlindFriendly ? '#ffb000' : '#fab387' },
+		{ label: 'Manageable (55-64 dB)', color: themeState.isColorBlindFriendly ? '#f0e442' : '#f9e2af' },
+		{ label: 'Great (40-54 dB)', color: themeState.isColorBlindFriendly ? '#56b4e9' : '#94e2d5' },
+		{ label: 'Ideal (0-39 dB)', color: themeState.isColorBlindFriendly ? '#0072b2' : '#89b4fa' }
+	]);
 </script>
 
 <div class="absolute top-6 right-6 md:right-8 z-20 flex flex-col gap-3 items-end">
