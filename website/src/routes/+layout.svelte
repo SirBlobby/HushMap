@@ -4,6 +4,7 @@
 	import Icon from '@iconify/svelte';
 	import { page } from '$app/stores';
 	import VoiceButton from '$lib/components/VoiceButton.svelte';
+	import LogoBadge from '$lib/components/LogoBadge.svelte';
 
 	let { children } = $props();
 
@@ -42,6 +43,10 @@
 
 	{#if showVoiceButton}
 		<VoiceButton />
+	{/if}
+
+	{#if showVoiceButton}
+		<LogoBadge />
 	{/if}
 
 	<!-- Main Content Area -->
