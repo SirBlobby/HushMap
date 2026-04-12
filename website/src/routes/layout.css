@@ -43,15 +43,21 @@
 	color: #585b70 !important;
 }
 
-.light-theme border-white {
+.light-theme .border-white {
 	border-color: rgba(88, 91, 112, 0.1);
+}
+
+.light-theme .border-white\/5,
+.light-theme .border-white\/10,
+.light-theme .border-white\/20 {
+	border-color: rgba(88, 91, 112, 0.15);
 }
 
 @utility glass-panel {
   background-color: var(--color-panel-glass);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid color-mix(in srgb, var(--color-surface1) 30%, transparent);
 }
 
 @utility text-glow {

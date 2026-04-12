@@ -32,7 +32,7 @@
 			if (val === 'default') {
 				mapState.flyHome();
 			} else if (val) {
-				const loc = UMD_LOCATIONS.find(l => l.name === val);
+				const loc = UMD_LOCATIONS.find((l: { name: string; lat: number; lng: number }) => l.name === val);
 				if (loc) {
 					mapState.flyTo(loc.lng, loc.lat, 18);
 				}
