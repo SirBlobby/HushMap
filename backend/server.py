@@ -32,8 +32,9 @@ app.add_middleware(
 )
 
 # MongoDB Setup
+import certifi
 MONGO_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017/")
-mongo_client = MongoClient(MONGO_URI)
+mongo_client = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
 db = mongo_client.study_buddy_db
 study_rooms_collection = db.study_rooms
 

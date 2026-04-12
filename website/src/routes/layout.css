@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+
 @theme {
   --font-sans: 'Comic Relief', 'Comic Neue', 'Comic Sans MS', cursive, system-ui, sans-serif;
   --font-display: 'Comic Relief', 'Comic Neue', 'Comic Sans MS', cursive, system-ui, sans-serif;
@@ -15,7 +16,7 @@
   --color-neon-primary: #f38ba8;
   --color-neon-alert: #f38ba8;
   --color-neon-blue: #f38ba8;
-  --color-panel-glass: rgba(24, 24, 37, 0.7); 
+  --color-panel-glass: rgba(24, 24, 37, 0.7);
 
 
   --shadow-glow-primary: 0 0 15px rgba(243, 139, 168, 0.4);
@@ -24,52 +25,56 @@
 }
 
 .light-theme {
-  --color-crust: #dce0e8; 
+  --color-crust: #dce0e8;
   --color-mantle: #e6e9ef;
   --color-base: #eff1f5;
-  --color-surface0: #ccd0da; 
+  --color-surface0: #ccd0da;
   --color-surface1: #bcc0cc;
   --color-surface2: #acb0be;
-  --color-red: #d20f39; 
-  --color-neon-primary: #ea76cb; 
-  --color-neon-alert: #e64553; 
-  --color-neon-blue: #fe640b; 
-  --color-panel-glass: rgba(239, 241, 245, 0.9); 
+  --color-red: #d20f39;
+  --color-neon-primary: #ea76cb;
+  --color-neon-alert: #e64553;
+  --color-neon-blue: #fe640b;
+  --color-panel-glass: rgba(239, 241, 245, 0.9);
   color: #4c4f69 !important;
 }
 
 
-.light-theme .text-white, .light-theme .text-slate-200, .light-theme .text-slate-300, .light-theme .text-slate-400, .light-theme .text-slate-500 {
-	color: #4c4f69 !important;
+.light-theme .text-white,
+.light-theme .text-slate-200,
+.light-theme .text-slate-300,
+.light-theme .text-slate-400,
+.light-theme .text-slate-500 {
+  color: #4c4f69 !important;
 }
 
 
 :root.color-blind {
-	--color-neon-primary: #ffb86c;
-	--color-neon-blue: #8be9fd;
+  --color-neon-primary: #ffb86c;
+  --color-neon-blue: #8be9fd;
 }
 
 
 :root.high-contrast {
-	--color-crust: #000000;
-	--color-mantle: #0a0a0a;
-	--color-base: #111111;
+  --color-crust: #000000;
+  --color-mantle: #0a0a0a;
+  --color-base: #111111;
 }
 
 :root.light-theme.high-contrast {
-	--color-crust: #ffffff;
-	--color-mantle: #f4f4f4;
-	--color-base: #ebebeb;
+  --color-crust: #ffffff;
+  --color-mantle: #f4f4f4;
+  --color-base: #ebebeb;
 }
 
 .light-theme border-white {
-	border-color: rgba(76, 79, 105, 0.1);
+  border-color: rgba(76, 79, 105, 0.1);
 }
 
 .light-theme .border-white\/5,
 .light-theme .border-white\/10,
 .light-theme .border-white\/20 {
-	border-color: rgba(76, 79, 105, 0.15);
+  border-color: rgba(76, 79, 105, 0.15);
 }
 
 @utility glass-panel {
