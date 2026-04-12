@@ -1,12 +1,18 @@
 <script lang="ts">
-	let pressed = $state(false);
+	import AICallModal from './AICallModal.svelte';
+
+	let isModalOpen = $state(false);
 
 	function handleClick() {
-		pressed = !pressed;
+		isModalOpen = true;
+	}
+
+	function closeModal() {
+		isModalOpen = false;
 	}
 </script>
 
-<div class="voice-btn-wrapper">
+<div class="voice-btn-wrapper z-40">
 	<div class="halo-ring halo-ring-1"></div>
 	<div class="halo-ring halo-ring-2"></div>
 	<div class="halo-ring halo-ring-3"></div>
@@ -17,7 +23,7 @@
 	</div>
 	<button
 		id="voice-assistant-btn"
-		class="voice-btn {pressed ? 'pressed' : ''}"
+		class="voice-btn {isModalOpen ? 'pressed' : ''}"
 		onclick={handleClick}
 		aria-label="Voice Assistant"
 		title="Voice Assistant"
@@ -26,7 +32,7 @@
 			xmlns="http://www.w3.org/2000/svg"
 			viewBox="0 0 24 24"
 			fill="none"
-			class="chat-icon {pressed ? 'icon-active' : ''}"
+			class="chat-icon {isModalOpen ? 'icon-active' : ''}"
 		>
 			<path
 				d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2Z"
@@ -39,12 +45,15 @@
 	</button>
 </div>
 
+{#if isModalOpen}
+	<AICallModal onClose={closeModal} />
+{/if}
+
 <style>
 	.voice-btn-wrapper {
 		position: fixed;
 		bottom: 5.5rem;
 		left: 1.5rem;
-		z-index: 60;
 		display: flex;
 		align-items: center;
 		justify-content: center;

@@ -9,8 +9,8 @@ export default defineConfig({
 		sveltekit(),
 		SvelteKitPWA({
 			manifest: {
-				name: 'EchoNode',
-				short_name: 'EchoNode',
+				name: 'HushMap',
+				short_name: 'HushMap',
 				description: 'Campus noise mapping and intervention.',
 				theme_color: '#0f172a', /* slate-900 */
 				background_color: '#0f172a',

@@ -1,4 +1,4 @@
-# BitCamp 2026 - AI Study Buddy & Room Monitor
+# HUSHMAP - AI Study Buddy & Room Monitor
 
 This project is a comprehensive solution featuring an M5GO smart device integration, an AI Voice and Vision Backend, and a Svelte frontend dashboard. It connects physical hardware to advanced AI models (Terp AI, ElevenLabs, YOLOv8) to provide a real-time study buddy experience and a study room occupancy monitor.
 
@@ -18,7 +18,8 @@ bun run dev --open
 
 ### 2. AI Backend Services (`/backend`)
 A FastAPI backend providing two core capabilities:
-- **Real-time Voice WebSockets (`/ws/voice`)**: Connects the M5GO device to STT (faster-whisper), an LLM (Terp AI), and TTS (ElevenLabs). It streams audio bytes natively over WebSockets.
+- **Real-time Voice WebSockets (`/ws/voice`)**: Connects the M5GO device AND the web dashboard to STT (faster-whisper), LLMs (Terp AI), and TTS (ElevenLabs). It streams 16-bit PCM audio bytes natively over WebSockets in full-duplex. 
+- **Context DB Aggregation**: TerpAI automatically queries the MongoDB `study_rooms_collection` to gather live hardware decibel readings globally before answering your prompt.
 - **Vision Occupancy API (`/api/vision/room-status`)**: Uses YOLOv8 object detection to identify people and chairs in a room image, determining if a study room is fully occupied and pairing the closest person to an available chair.
 
 **Developing:**
@@ -51,11 +52,13 @@ Make sure you set up your `.env` variables before running the Docker containers 
 
 Create a `.env` in the `/backend` folder:
 ```ini
-ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
+ELEVENLABS_API_KEY=sk_...
 ELEVENLABS_VOICE_ID=JBFqnCBsd6RMkjVDRZzb
-TERP_AI_BEARER_TOKEN=your_jwt_token_here
-TERP_AI_CONVERSATION_ID=5e752e56-06c6-ec73-1f13-456029ce1299
-MONGODB_URI=mongodb_url_here
+TERP_AI_BEARER_TOKEN=eyJhbGciOiJ...
+TERP_AI_CONVERSATION_ID=37fa27cc-542a-c8a8-9c31-9d1954fdc1d2
+MONGODB_URI=mongodb+srv://...
 ```
+
+Update your `.env` to match the exact `authorization: Bearer` and `parentSegmentId` context from TerpAI if timeouts occur.
 
 Update the `/m5go/main.py` file to include your Wi-Fi credentials and the correct local IP for the WebSocket (`WS_URL`).

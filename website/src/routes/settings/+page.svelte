@@ -41,7 +41,7 @@
 </script>
 
 <svelte:head>
-	<title>EchoNode | Settings</title>
+	<title>HushMap | Settings</title>
 </svelte:head>
 
 <div class="relative w-full h-full bg-crust border-l border-white/5 p-6 md:p-12 overflow-y-auto duration-500 transition-colors">

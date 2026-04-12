@@ -6,7 +6,7 @@
 </script>
 
 <svelte:head>
-	<title>EchoNode | Live Map</title>
+	<title>HushMap | Live Map</title>
 </svelte:head>
 
 <div class="relative w-full h-full bg-crust border-l border-white/5">

@@ -55,7 +55,7 @@
 </script>
 
 <svelte:head>
-	<title>EchoNode | History</title>
+	<title>HushMap | History</title>
 </svelte:head>
 
 <div class="relative w-full h-full bg-crust border-l border-white/5">
