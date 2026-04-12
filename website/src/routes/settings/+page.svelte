@@ -5,19 +5,43 @@
 	function handleLightModeClick() {
 		themeState.toggle();
 	}
+
+	const supportedLanguages = [
+		{ code: 'en', name: 'English' },
+		{ code: 'es', name: 'Spanish' },
+		{ code: 'fr', name: 'French' },
+		{ code: 'de', name: 'German' },
+		{ code: 'zh-CN', name: 'Chinese (Simplified)' },
+		{ code: 'ja', name: 'Japanese' },
+		{ code: 'ko', name: 'Korean' },
+		{ code: 'hi', name: 'Hindi' },
+		{ code: 'ar', name: 'Arabic' }
+	];
+
+	let currentLang = $state('en');
+
+	$effect(() => {
+		const match = document.cookie.match(/googtrans=\/en\/([^;]+)/);
+		if (match && match[1]) {
+			currentLang = match[1];
+		}
+	});
+
+	function handleLanguageChange(event: Event) {
+		const langCode = (event.target as HTMLSelectElement).value;
+		if (langCode === 'en') {
+			document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+			document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=.${location.hostname}; path=/;`;
+		} else {
+			document.cookie = `googtrans=/en/${langCode}; path=/`;
+			document.cookie = `googtrans=/en/${langCode}; domain=.${location.hostname}; path=/`;
+		}
+		window.location.reload();
+	}
 </script>
 
 <svelte:head>
 	<title>EchoNode | Settings</title>
-	<script>
-		window.googleTranslateElementInit = function() {
-			new window.google.translate.TranslateElement({
-				pageLanguage: 'en',
-				layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE
-			}, 'google_translate_element');
-		};
-	</script>
-	<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async defer></script>
 </svelte:head>
 
 <div class="relative w-full h-full bg-crust border-l border-white/5 p-6 md:p-12 overflow-y-auto duration-500 transition-colors">
@@ -86,8 +110,26 @@
 					<h3 class="font-display font-medium text-white text-lg flex items-center gap-2"><Icon icon="mdi:translate" class="text-neon-primary" /> Global Translation</h3>
 				</div>
 				
-				<div class="shrink-0 p-2 bg-surface0 border border-white/10 rounded-xl overflow-hidden min-h-[44px] flex items-center justify-center">
-					<div id="google_translate_element" class="scale-90 origin-right"></div>
+				<div class="shrink-0 p-2 min-h-[44px] flex items-center justify-center">
+					<!-- Custom Styled Dropdown -->
+					<div class="glass-panel rounded-xl border border-white/10 overflow-hidden flex flex-col w-48 transition-all hover:border-neon-primary/40 bg-surface0 relative">
+						<select 
+							bind:value={currentLang}
+							class="bg-transparent font-display text-sm md:text-base p-3 border-none outline-none focus:ring-0 cursor-pointer w-full font-medium"
+							style="color: {themeState.isLight ? '#4c4f69' : '#ffffff'} !important; appearance: none; -webkit-appearance: none;"
+							onchange={handleLanguageChange}
+						>
+							<option value="en" class="bg-crust" style="color: {themeState.isLight ? '#4c4f69' : '#ffffff'} !important;">English</option>
+							{#each supportedLanguages.filter(l => l.code !== 'en') as lang}
+								<option value={lang.code} class="bg-crust" style="color: {themeState.isLight ? '#4c4f69' : '#ffffff'} !important;">{lang.name}</option>
+							{/each}
+						</select>
+						
+						<!-- Dropdown Arrow -->
+						<div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+							<Icon icon="mdi:chevron-down" style="color: {themeState.isLight ? '#4c4f69' : '#ffffff'} !important;" />
+						</div>
+					</div>
 				</div>
 			</div>
 		</section>

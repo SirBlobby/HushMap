@@ -15,41 +15,41 @@
   --color-neon-primary: #f38ba8;
   --color-neon-alert: #f38ba8;
   --color-neon-blue: #f38ba8;
-  --color-panel-glass: rgba(24, 24, 37, 0.7); /* Mantle Glass */
+  --color-panel-glass: rgba(24, 24, 37, 0.7); 
 
-  /* Glowing effects around elements */
+
   --shadow-glow-primary: 0 0 15px rgba(243, 139, 168, 0.4);
   --shadow-glow-alert: 0 0 15px rgba(243, 139, 168, 0.4);
   --shadow-glow-blue: 0 0 15px rgba(243, 139, 168, 0.4);
 }
 
 .light-theme {
-  --color-crust: #ffffff; /* Pure white background */
-  --color-mantle: #cdd6f4;
-  --color-base: #bac2de;
-  --color-surface0: #9399b2; /* Darker buttons */
-  --color-surface1: #7f849c;
-  --color-surface2: #6c7086;
-  --color-red: #e07290; 
-  --color-neon-primary: #e07290; /* Darker Pink */
-  --color-neon-alert: #f38ba8; 
-  --color-neon-blue: #e07290; /* Darker Pink Accent */
-  --color-panel-glass: rgba(255, 255, 255, 0.95); /* Bright White Glass for sidebar */
-  color: #585b70 !important; /* Darkest Text */
+  --color-crust: #dce0e8; 
+  --color-mantle: #e6e9ef;
+  --color-base: #eff1f5;
+  --color-surface0: #ccd0da; 
+  --color-surface1: #bcc0cc;
+  --color-surface2: #acb0be;
+  --color-red: #d20f39; 
+  --color-neon-primary: #ea76cb; 
+  --color-neon-alert: #e64553; 
+  --color-neon-blue: #fe640b; 
+  --color-panel-glass: rgba(239, 241, 245, 0.9); 
+  color: #4c4f69 !important;
 }
 
-/* Override text colors globally for light mode */
+
 .light-theme .text-white, .light-theme .text-slate-200, .light-theme .text-slate-300, .light-theme .text-slate-400, .light-theme .text-slate-500 {
-	color: #585b70 !important;
+	color: #4c4f69 !important;
 }
 
-/* Color Blind (Protanopia/Deuteranopia safe swaps) */
+
 :root.color-blind {
 	--color-neon-primary: #ffb86c;
 	--color-neon-blue: #8be9fd;
 }
 
-/* High Contrast: Pitch black backgrounds and pure white texts */
+
 :root.high-contrast {
 	--color-crust: #000000;
 	--color-mantle: #0a0a0a;
@@ -63,13 +63,13 @@
 }
 
 .light-theme border-white {
-	border-color: rgba(88, 91, 112, 0.1);
+	border-color: rgba(76, 79, 105, 0.1);
 }
 
 .light-theme .border-white\/5,
 .light-theme .border-white\/10,
 .light-theme .border-white\/20 {
-	border-color: rgba(88, 91, 112, 0.15);
+	border-color: rgba(76, 79, 105, 0.15);
 }
 
 @utility glass-panel {

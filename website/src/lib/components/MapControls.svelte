@@ -6,11 +6,11 @@
 	let { showDropdown = true } = $props<{ showDropdown?: boolean }>();
 
 	const legendItems = $derived([
-		{ label: 'Harmful (80+ dB)', color: themeState.isColorBlindFriendly ? '#e66100' : '#f38ba8' },
-		{ label: 'Disruptive (65-79 dB)', color: themeState.isColorBlindFriendly ? '#ffb000' : '#fab387' },
-		{ label: 'Manageable (55-64 dB)', color: themeState.isColorBlindFriendly ? '#f0e442' : '#f9e2af' },
-		{ label: 'Great (40-54 dB)', color: themeState.isColorBlindFriendly ? '#56b4e9' : '#94e2d5' },
-		{ label: 'Ideal (0-39 dB)', color: themeState.isColorBlindFriendly ? '#0072b2' : '#89b4fa' }
+		{ label: 'Harmful (80+ dB)', color: themeState.isColorBlindFriendly ? '#e66100' : (themeState.isLight ? '#d20f39' : '#f38ba8') },
+		{ label: 'Disruptive (65-79 dB)', color: themeState.isColorBlindFriendly ? '#ffb000' : (themeState.isLight ? '#fe640b' : '#fab387') },
+		{ label: 'Manageable (55-64 dB)', color: themeState.isColorBlindFriendly ? '#f0e442' : (themeState.isLight ? '#df8e1d' : '#f9e2af') },
+		{ label: 'Great (40-54 dB)', color: themeState.isColorBlindFriendly ? '#56b4e9' : (themeState.isLight ? '#179299' : '#94e2d5') },
+		{ label: 'Ideal (0-39 dB)', color: themeState.isColorBlindFriendly ? '#0072b2' : (themeState.isLight ? '#1e66f5' : '#89b4fa') }
 	]);
 </script>
 
