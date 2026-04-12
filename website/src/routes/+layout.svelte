@@ -1,12 +1,15 @@
 <script lang="ts">
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
-	// Make sure you have $app/environment or similar if you need active states, 
-	// for now we use simple routing links using sveltekit's native anchor tags.
 	import Icon from '@iconify/svelte';
 	import { page } from '$app/stores';
+	import VoiceButton from '$lib/components/VoiceButton.svelte';
 
 	let { children } = $props();
+
+	const showVoiceButton = $derived(
+		$page.url.pathname === '/' || $page.url.pathname === '/history'
+	);
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
@@ -36,6 +39,10 @@
 			<span class="absolute left-full ml-4 px-2 py-1 bg-black/80 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none md:block hidden border border-white/10">Settings</span>
 		</a>
 	</nav>
+
+	{#if showVoiceButton}
+		<VoiceButton />
+	{/if}
 
 	<!-- Main Content Area -->
 	<main class="flex-1 relative w-full h-full overflow-hidden">
