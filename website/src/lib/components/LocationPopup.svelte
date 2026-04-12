@@ -6,7 +6,7 @@
 
 	let Chart: any;
 
-	let chartCanvas: HTMLCanvasElement;
+	let chartCanvas: HTMLCanvasElement | undefined = $state();
 	let chartInstance: any;
 
 	function closePopup() {
@@ -46,8 +46,24 @@
 		return Math.round(sum / points.length);
 	});
 
+	let currentPeople = $derived.by(() => {
+		if (!mapState.selectedLocation || !mapState.historyData) return 0;
+		const points = mapState.historyData
+			.filter(d => d.room_id === mapState.selectedLocation?.id)
+			.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+		if (points.length === 0) return 0;
+		return points[0].people || 0;
+	});
+
 	let statusColor = $derived(getChartColor(current2hAvg, themeState.isLight, themeState.isColorBlindFriendly));
 	let statusLabel = $derived(getStatusLabel(current2hAvg));
+	
+	let occStatus = $derived.by(() => {
+		if (currentPeople > 60) return { label: "Packed", color: "#f38ba8" };
+		if (currentPeople > 25) return { label: "Moderate", color: "#f9e2af" };
+		if (currentPeople === 0 && current2hAvg === 0) return { label: "No Data", color: "#888888" };
+		return { label: "Quiet", color: "#94e2d5" };
+	});
 
 	function drawChart() {
 		if (!Chart || !chartCanvas || !mapState.selectedLocation) return;
@@ -65,8 +81,8 @@
 		const isCB = themeState.isColorBlindFriendly;
 
 		const ctx = chartCanvas.getContext('2d');
-		let gradientLine = statusColor;
-		let gradientFill = statusColor + '33';
+		let gradientLine: any = statusColor;
+		let gradientFill: any = statusColor + '33';
 
 		if (ctx) {
 			gradientLine = ctx.createLinearGradient(0, 0, 0, 200);
@@ -95,7 +111,7 @@
 					borderWidth: 3,
 					fill: true,
 					segment: {
-						borderColor: ctx => getChartColor(ctx.p1.parsed.y, isLight, isCB)
+						borderColor: (ctx: any) => getChartColor(ctx.p1.parsed.y, isLight, isCB)
 					},
 					tension: 0.5,
 					pointRadius: 0,
@@ -145,6 +161,7 @@
 
 	onMount(async () => {
 		const chartModule = await import('chart.js/auto');
+		// @ts-ignore
 		const chartjsAdapter = await import('chartjs-adapter-date-fns');
 		Chart = chartModule.default;
 		if (mapState.selectedLocation) drawChart();
@@ -163,10 +180,19 @@
 			<Icon icon="mdi:close" class="text-xl" />
 		</button>
 		<h2 class="font-display font-semibold text-2xl text-white mb-1">{mapState.selectedLocation.name}</h2>
-		<div class="flex items-center gap-2">
-			<div class="w-3 h-3 rounded-full shadow-[0_0_8px_currentColor]" style="color: {statusColor}; background-color: {statusColor};"></div>
-			<span class="text-sm font-medium" style="color: {statusColor}">{statusLabel}</span>
-			<span class="text-slate-400 text-sm ml-1">· {current2hAvg} dB Avg (Last 2h)</span>
+		
+		<div class="flex flex-col gap-1 mt-2">
+			<div class="flex items-center gap-2">
+				<div class="w-3 h-3 rounded-full shadow-[0_0_8px_currentColor]" style="color: {statusColor}; background-color: {statusColor};"></div>
+				<span class="text-sm font-medium" style="color: {statusColor}">{statusLabel}</span>
+				<span class="text-slate-400 text-sm ml-1">· {current2hAvg} dB Avg (Last 2h)</span>
+			</div>
+			
+			<div class="flex items-center gap-2">
+				<Icon icon="mdi:account-group" class="text-lg" style="color: {occStatus.color}" />
+				<span class="text-sm font-medium" style="color: {occStatus.color}">{occStatus.label}</span>
+				<span class="text-slate-400 text-sm ml-1">· {currentPeople} people currently</span>
+			</div>
 		</div>
 	</div>
 

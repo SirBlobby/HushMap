@@ -92,6 +92,7 @@
 				properties: {
 					room_id: room.room_id,
 					db: room.db,
+					people: room.people || 0,
 					name: locName,
 					date: room.date,
 				},
@@ -114,6 +115,7 @@
 					properties: {
 						room_id: loc.id,
 						db: 0,
+						people: 0,
 						name: loc.name,
 						date: new Date().toISOString(),
 					},
@@ -263,6 +265,19 @@
 		}
 
 		const rawName = props.name.split("\\n")[0].split("\n")[0];
+		
+		let occStatus = "Quiet";
+		let occColor = "#94e2d5";
+		if (props.people > 60) {
+			occStatus = "Packed";
+			occColor = "#f38ba8";
+		} else if (props.people > 25) {
+			occStatus = "Moderate";
+			occColor = "#f9e2af";
+		} else if (props.people === 0 && props.db === 0) {
+			occStatus = "No Data";
+			occColor = "#888888";
+		}
 
 		return `
 			<div class="px-3 py-2 bg-crust/90 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.5)] min-w-[150px] text-text">
@@ -272,6 +287,10 @@
 					<span class="text-xs font-semibold" style="color: ${statusColor}">${status}</span>
 				</div>
 				<p class="text-xs text-subtext0 mt-1">Noise: <span class="font-mono text-white">${props.db > 0 ? props.db.toFixed(1) + " dB" : "N/A"}</span></p>
+				<p class="text-xs text-subtext0 mt-1 flex items-center gap-1">
+					Occupancy: <span class="font-mono" style="color: ${occColor}">${props.people}</span> 
+					<span class="text-[10px]" style="color: ${occColor}">(${occStatus})</span>
+				</p>
 				<p class="text-[10px] text-surface2 mt-2 font-mono">Last updated: ${timeStr}</p>
 			</div>
 		`;

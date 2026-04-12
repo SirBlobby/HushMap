@@ -83,6 +83,11 @@ def generate_fake_data():
 
         for loc in UMD_LOCATIONS:
             db_level = get_db_for_time_and_location(hour, loc["id"])
+            
+            # Estimate people based on noise level. 
+            # 35dB = ~0 people. Every 1.5 dB above 35 adds ~1 person.
+            base_people = max(0, (db_level - 35) * 1.5)
+            people_count = int(max(0, base_people + random.uniform(-5, 10)))
 
             doc = {
                 "room_id": loc["id"],
@@ -91,6 +96,7 @@ def generate_fake_data():
                     "coordinates": [loc["lng"], loc["lat"]]
                 },
                 "db": round(db_level, 2),
+                "people": people_count,
                 "date": current_time
             }
             docs_to_insert.append(doc)

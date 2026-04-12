@@ -76,23 +76,28 @@ def analyze_room_image(image_bytes: bytes):
 
         row_ind, col_ind = linear_sum_assignment(dist_matrix)
 
+        DISTANCE_THRESHOLD = 800.0  # Increased threshold to ensure grouping even if they are far in the camera view
+
         for person_idx, chair_idx in zip(row_ind, col_ind):
             distance = float(dist_matrix[person_idx, chair_idx])
-            pairs.append({
-                "person_index": int(person_idx),
-                "chair_index": int(chair_idx),
-                "distance": distance
-            })
+            if distance <= DISTANCE_THRESHOLD:
+                pairs.append({
+                    "person_index": int(person_idx),
+                    "chair_index": int(chair_idx),
+                    "distance": distance
+                })
 
 
 
-    is_full = num_people >= num_chairs if num_chairs > 0 else False
+    available_chairs = num_chairs - len(pairs)
+    is_full = available_chairs <= 0 if num_chairs > 0 else False
 
     return {
         "room_status": "full" if is_full else "available",
         "counts": {
             "people": num_people,
-            "chairs": num_chairs
+            "chairs": num_chairs,
+            "available_chairs": available_chairs
         },
         "pairs": pairs,
         "details": {
