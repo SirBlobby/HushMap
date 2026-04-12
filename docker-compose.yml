@@ -11,3 +11,12 @@ services:
       - .env
     environment:
       - NODE_ENV=production
+
+  ai_backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env

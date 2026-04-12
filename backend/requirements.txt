@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+websockets
+faster-whisper
+requests
+python-dotenv
+python-multipart
+ultralytics
+opencv-python-headless
+scipy

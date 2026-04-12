@@ -28,3 +28,7 @@ vite.config.ts.timestamp-*
 .svelte-kit/
 
 build/
+
+venv/
+
+__pycache__/
