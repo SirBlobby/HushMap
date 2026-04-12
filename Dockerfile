@@ -1,28 +1,30 @@
+# Build frontend
 FROM oven/bun:latest AS builder
 
-WORKDIR /app
-
-# Install dependencies
+WORKDIR /project/website
 COPY website/package.json website/bun.lock ./
 RUN bun install --frozen-lockfile
 
-# Build the SvelteKit application
 COPY website/ .
-RUN bun run build
+RUN mkdir -p ../backend && bun run build
 
-# Setup the production environment
-FROM oven/bun:latest
+# Backend and final image
+FROM python:3.9-slim
+
+RUN apt-get update && \
+    apt-get install -y ffmpeg libgl1 libglib2.0-0 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Copy production dependencies configuration and install
-COPY --from=builder /app/package.json /app/bun.lock ./
-RUN bun install --production --frozen-lockfile
+COPY backend/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the build output and the custom Bun server
-COPY --from=builder /app/build ./build
-COPY --from=builder /app/server ./server
+COPY backend/ .
+# Copy static build from builder
+COPY --from=builder /project/backend/static /app/static
 
-EXPOSE 3000
+EXPOSE 8000
 
-CMD ["bun", "run", "server/app.ts"]
+CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8000"]

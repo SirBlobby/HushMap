@@ -2,6 +2,56 @@
 	import Icon from '@iconify/svelte';
 	import MapControls from '$lib/components/MapControls.svelte';
 	import InteractiveMap from '$lib/components/InteractiveMap.svelte';
+	import { onDestroy, onMount } from 'svelte';
+
+	// Time state
+	const NOW = Date.now();
+	const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+	let playbackTime = $state(NOW);
+	
+	let isPlaying = $state(false);
+	let playInterval: any;
+
+	function togglePlay() {
+		isPlaying = !isPlaying;
+		if (isPlaying) {
+			// Auto replay from beginning if at the end
+			if (playbackTime >= NOW) {
+				playbackTime = NOW - TWENTY_FOUR_HOURS;
+			}
+			playInterval = setInterval(() => {
+				// Advance 15 minutes per tick
+				playbackTime += 15 * 60 * 1000;
+				if (playbackTime >= NOW) {
+					playbackTime = NOW;
+					isPlaying = false;
+					clearInterval(playInterval);
+				}
+			}, 200); // Ticks every 200ms
+		} else {
+			clearInterval(playInterval);
+		}
+	}
+
+	onDestroy(() => {
+		if (playInterval) clearInterval(playInterval);
+	});
+
+	// Derived values for the UI
+	let progressPercent = $derived(((playbackTime - (NOW - TWENTY_FOUR_HOURS)) / TWENTY_FOUR_HOURS) * 100);
+	
+	let formattedTime = $derived.by(() => {
+		const d = new Date(playbackTime);
+		return d.toLocaleString('en-US', {
+			weekday: 'short',
+			month: 'short',
+			day: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit',
+			timeZone: 'America/New_York'
+		}) + ' EST';
+	});
+
 </script>
 
 <svelte:head>
@@ -10,7 +60,7 @@
 
 <div class="relative w-full h-full bg-crust border-l border-white/5">
 	<!-- Map Engine Engine -->
-	<InteractiveMap />
+	<InteractiveMap {playbackTime} />
 
 	<MapControls showDropdown={true} />
 
@@ -32,21 +82,32 @@
 			
 			<div class="flex items-center justify-between mb-2">
 				<h2 class="font-display font-medium text-lg text-white">Playback Controls</h2>
-				<span class="text-neon-blue font-mono text-sm tracking-wider drop-shadow-[0_0_5px_rgba(0,243,255,0.5)]">Tue, Oct 14 - 14:00</span>
+				<span class="text-neon-blue font-mono text-sm tracking-wider drop-shadow-[0_0_5px_rgba(0,243,255,0.5)]">{formattedTime}</span>
 			</div>
 			
 			<div class="flex items-center gap-6 mt-6">
-				<button class="w-12 h-12 rounded-full bg-neon-blue/10 hover:bg-neon-blue/20 flex items-center justify-center text-neon-blue transition-colors border border-neon-blue/30 shrink-0">
-					<Icon icon="mdi:play" class="text-2xl" />
+				<button onclick={togglePlay} class="w-12 h-12 rounded-full bg-neon-blue/10 hover:bg-neon-blue/20 flex items-center justify-center text-neon-blue transition-colors border border-neon-blue/30 shrink-0 focus:outline-none">
+					<Icon icon={isPlaying ? "mdi:pause" : "mdi:play"} class="text-2xl" />
 				</button>
 				
 				<!-- Slider Track -->
-				<div class="flex-1 relative group cursor-pointer h-8 flex items-center">
-					<div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-						<div class="h-full bg-neon-blue w-[60%] shadow-[0_0_10px_rgba(0,243,255,0.8)]"></div>
+				<div class="flex-1 relative h-8 flex items-center group">
+					<div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden absolute pointer-events-none">
+						<div class="h-full bg-neon-blue shadow-[0_0_10px_rgba(0,243,255,0.8)]" style="width: {progressPercent}%"></div>
 					</div>
-					<!-- Slider Thumb -->
-					<div class="absolute top-1/2 left-[60%] -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.8)] border-2 border-neon-blue group-hover:scale-125 transition-transform"></div>
+					
+					<!-- Native Range Input (Hidden visual, overlay over the track) -->
+					<input 
+						type="range" 
+						min={NOW - TWENTY_FOUR_HOURS} 
+						max={NOW} 
+						bind:value={playbackTime}
+						oninput={() => { if (isPlaying) togglePlay(); }}
+						class="w-full absolute opacity-0 cursor-pointer h-full z-20"
+					/>
+					
+					<!-- Custom Thumb (visually synced to the input value) -->
+					<div class="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.8)] border-2 border-neon-blue group-hover:scale-125 transition-transform pointer-events-none z-10" style="left: calc({progressPercent}% - 8px)"></div>
 				</div>
 				
 				<div class="text-xs text-slate-400 font-mono shrink-0">
@@ -55,5 +116,4 @@
 			</div>
 		</div>
 	</div>
-
 </div>

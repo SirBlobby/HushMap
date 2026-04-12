@@ -100,6 +100,30 @@ Returns a JSON object detailing the room status, counts, and pairings.
 }
 ```
 
+### `/api/study-rooms` (GET)
+
+Returns a list of all recorded study room data.
+
+### `/api/study-rooms/history` (GET)
+
+Returns a list of all recorded study room data from the last 24 hours, sorted by most recent first.
+
+**Response:**
+```json
+{
+  "data": [
+    {
+      "location": {
+        "type": "Point",
+        "coordinates": [-77.3079, 38.8315]
+      },
+      "db": 65.2,
+      "date": "2026-04-12T14:30:00.000Z"
+    }
+  ]
+}
+```
+
 ## Client Integration Notes
 
 For the ESP32/M5GO client (`m5go/main.py`), ensure you update the `WS_URL` variable to point to the correct local IP address of the machine running this backend server.

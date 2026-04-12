@@ -37,14 +37,13 @@ MicroPython scripts for the M5Stack M5GO device.
 
 ## Docker Setup
 
-The entire stack can be run via Docker Compose, which builds both the Svelte website and the Python AI Backend.
+The entire stack can be run via Docker Compose, which builds both the Svelte website and the Python AI Backend into a single seamless container.
 
 ```bash
 docker-compose up --build
 ```
 
-- **Web Frontend**: Runs on port `3000`
-- **AI Backend**: Runs on port `8000`
+- **App (Frontend + Backend)**: Runs on port `8000`
 
 ## Configuration
 
@@ -56,6 +55,7 @@ ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
 ELEVENLABS_VOICE_ID=JBFqnCBsd6RMkjVDRZzb
 TERP_AI_BEARER_TOKEN=your_jwt_token_here
 TERP_AI_CONVERSATION_ID=5e752e56-06c6-ec73-1f13-456029ce1299
+MONGODB_URI=mongodb_url_here
 ```
 
 Update the `/m5go/main.py` file to include your Wi-Fi credentials and the correct local IP for the WebSocket (`WS_URL`).

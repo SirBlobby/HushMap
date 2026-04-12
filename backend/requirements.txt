@@ -8,3 +8,5 @@ python-multipart
 ultralytics
 opencv-python-headless
 scipy
+pymongo
+pydantic

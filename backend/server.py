@@ -8,12 +8,45 @@ import json
 import base64
 import urllib.request
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, File, UploadFile
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from pydantic import BaseModel
+from typing import List, Optional
+from datetime import datetime, timedelta
+from pymongo import MongoClient
 from dotenv import load_dotenv
 from vision import analyze_room_image
+
+from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# MongoDB Setup
+MONGO_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017/")
+mongo_client = MongoClient(MONGO_URI)
+db = mongo_client.study_buddy_db
+study_rooms_collection = db.study_rooms
+
+# Pydantic models for Study Room Data
+class GeoJSONPoint(BaseModel):
+    type: str = "Point"
+    coordinates: List[float]
+
+class StudyRoomData(BaseModel):
+    room_id: Optional[str] = None
+    location: GeoJSONPoint
+    db: float
+    date: Optional[datetime] = None
 
 SAMPLE_RATE = 16000
 BITS_PER_SAMPLE = 16
@@ -253,3 +286,70 @@ async def check_room_status(file: UploadFile = File(...)):
     contents = await file.read()
     result = analyze_room_image(contents)
     return result
+
+UMD_LOCATIONS = [
+	{ "id": 'esj', "name": 'Edward St. John (ESJ)', "lng": -76.94209511596014, "lat": 38.987133359608755 },
+	{ "id": 'mckeldin', "name": 'McKeldin Library', "lng": -76.94494907523277, "lat": 38.986021017749366 },
+	{ "id": 'hornbake', "name": 'Hornbake Library', "lng": -76.94161787005467, "lat": 38.988233373664826 },
+	{ "id": 'stem', "name": 'STEM Library', "lng": -76.93942003731279, "lat": 38.988991437126195 },
+	{ "id": 'clarice', "name": 'Clarice Library', "lng": -76.9500912552473, "lat": 38.990547823732285 },
+	{ "id": 'yahentamitsi', "name": 'Yahentamitsi', "lng": -76.9448027183373, "lat": 38.99108961575231 },
+	{ "id": 'iribe', "name": 'Iribe', "lng": -76.93643838603555, "lat": 38.98933701397555 },
+	{ "id": 'reckord', "name": 'Reckord Armory', "lng": -76.93897470250619, "lat": 38.98609556181066 },
+	{ "id": 'stamp', "name": 'Stamp Student Union', "lng": -76.94473083972326, "lat": 38.988130238874874 }
+]
+
+@app.post("/api/study-rooms")
+async def create_study_room_data(data: StudyRoomData):
+    # Check if the coordinates match one of the known locations (with small tolerance)
+    is_valid_location = False
+    req_lng, req_lat = data.location.coordinates[0], data.location.coordinates[1]
+    
+    for loc in UMD_LOCATIONS:
+        if abs(loc["lng"] - req_lng) < 0.0001 and abs(loc["lat"] - req_lat) < 0.0001:
+            is_valid_location = True
+            # Override coordinates to exactly match known location for consistency
+            data.location.coordinates = [loc["lng"], loc["lat"]]
+            data.room_id = loc["id"]
+            break
+            
+    if not is_valid_location:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail="Invalid location. Coordinates must correspond to a known UMD location.")
+
+    if not data.date:
+        data.date = datetime.utcnow()
+    doc = data.dict()
+    result = study_rooms_collection.insert_one(doc)
+    return {"id": str(result.inserted_id), "room_id": data.room_id, "status": "success"}
+
+@app.get("/api/study-rooms")
+async def get_study_room_data():
+    rooms = list(study_rooms_collection.find({}, {"_id": 0}))
+    return {"data": rooms}
+
+@app.get("/api/study-rooms/history")
+async def get_study_room_history():
+    """Get all study room data from the last 24 hours."""
+    twenty_four_hours_ago = datetime.utcnow() - timedelta(hours=24)
+    rooms = list(study_rooms_collection.find(
+        {"date": {"$gte": twenty_four_hours_ago}}, 
+        {"_id": 0}
+    ).sort("date", -1))
+    return {"data": rooms}
+
+@app.get("/{full_path:path}")
+async def serve_spa(full_path: str):
+    static_dir = "static"
+    if not os.path.exists(static_dir):
+        return {"error": "Static directory not found. Please build the frontend."}
+        
+    static_path = os.path.join(static_dir, full_path)
+    if os.path.isfile(static_path):
+        return FileResponse(static_path)
+    
+    index_path = os.path.join(static_dir, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+        
+    return {"error": "index.html not found in static directory"}
