@@ -34,26 +34,26 @@ def d_s(lcd, f, s_x, s_y, p_s):
 
 setScreenColor(0x222222)
 
-# ==========================================
-# CONFIGURATION
-# ==========================================
+
+
+
 
 WIFI_SSID = "Blobby"
 WIFI_PASS = "73556088"
 WS_URL = "ws://192.168.137.1:8000/ws/voice"
 
-# Location Settings for Noise Monitoring
+
 CURRENT_ROOM_ID = "mckeldin"
 CURRENT_LAT = 38.986021
 CURRENT_LNG = -76.944949
 
-# Audio Settings
-TARGET_SAMPLE_RATE = 8000  # Voice recording sample rate
+
+TARGET_SAMPLE_RATE = 8000
 AUDIO_CHUNK_SIZE = 2048
 
-# ==========================================
-# WEBSOCKET CLIENT
-# ==========================================
+
+
+
 
 class WSClient:
     def __init__(self, sock):
@@ -167,12 +167,12 @@ def ws_connect(url):
     else:
         host = host_port
         port = 80
-    
+
     addr = usocket.getaddrinfo(host, port)[0][-1]
     sock = usocket.socket()
     sock.connect(addr)
     sock.settimeout(15)
-    
+
     key = ubinascii.b2a_base64(os.urandom(16)).strip().decode()
     req = (
         "GET %s HTTP/1.1\r\n"
@@ -183,7 +183,7 @@ def ws_connect(url):
         "Sec-WebSocket-Version: 13\r\n"
         "\r\n"
     ) % (path, host_port, key)
-    
+
     sock.send(req.encode())
     resp = b""
     while b"\r\n\r\n" not in resp:
@@ -192,17 +192,17 @@ def ws_connect(url):
             sock.close()
             raise Exception("Closed during handshake")
         resp += b
-        
+
     status_line = resp.split(b"\r\n")[0]
     if b"101" not in status_line:
         sock.close()
         raise Exception("Upgrade failed: " + status_line.decode())
-        
+
     return WSClient(sock)
 
-# ==========================================
-# UI & UTILITY FUNCTIONS
-# ==========================================
+
+
+
 
 _cur_face = None
 def set_face(face):
@@ -224,12 +224,12 @@ def connect_wifi():
     wlan.active(True)
     if not wlan.isconnected():
         wlan.connect(WIFI_SSID, WIFI_PASS)
-        
+
     attempts = 0
     while not wlan.isconnected() and attempts < 20:
         time.sleep(0.5)
         attempts += 1
-        
+
     if wlan.isconnected():
         lcd.clear()
         lcd.print("WiFi Connected!", 0, 0, 0x00FF00)
@@ -243,9 +243,9 @@ def connect_wifi():
         lcd.clear()
     return wlan.isconnected()
 
-# ==========================================
-# AUDIO I/O
-# ==========================================
+
+
+
 
 def get_adc():
     try:
@@ -265,7 +265,7 @@ def get_db(adc_obj):
     sum_v = 0
     sum_sq = 0
     count = 0
-    end_t = time.ticks_ms() + 40 
+    end_t = time.ticks_ms() + 40
     while time.ticks_ms() < end_t:
         try:
             v = adc_obj.read()
@@ -275,29 +275,29 @@ def get_db(adc_obj):
         except:
             pass
     if count == 0: return 30
-    
+
     mean = sum_v / count
     variance = (sum_sq / count) - (mean * mean)
-    
+
     if variance <= 1: return 30
     amp = math.sqrt(variance)
     if amp <= 1: return 30
-    
-    # Scale to human DB
+
+
     return 20 * math.log10(amp) + 25
 
 def init_manual_spk():
     try:
-        # M5GO Core speaker sits on DAC 1 (Pin 25)
-        # Therefore we MUST strictly use DAC_BUILT_IN. Digital I2S on this pin is not supported!
+
+
         if hasattr(machine.I2S, "MODE_DAC_BUILT_IN"):
             mode = getattr(machine.I2S, "MODE_MASTER", 1) | getattr(machine.I2S, "MODE_TX", 2) | getattr(machine.I2S, "MODE_DAC_BUILT_IN", 0)
             cfmt = getattr(machine.I2S, "CHANNEL_FMT_RIGHT_LEFT", 1)
             dfmt = getattr(machine.I2S, "FORMAT_I2S_MSB", 1)
-            
+
             i2s_id = getattr(machine.I2S, "NUM0", 0)
-            
-            # Different MicroPython versions vary wildly on kwarg vs positional I2S init structure
+
+
             try_sigs = [
                 ([i2s_id], {"mode": mode, "rate": 16000, "bits": 16, "format": cfmt, "ibuf": 2048}),
                 ([i2s_id, mode, 16000, 16, cfmt, dfmt], {}),
@@ -307,14 +307,14 @@ def init_manual_spk():
                 ([], {"mode": mode, "sample_rate": 16000, "bits": 16}),
                 ([i2s_id], {"mode": mode, "rate": 16000, "bits": 16})
             ]
-            
+
             last_err = None
             for args, kwargs in try_sigs:
                 try:
                     return machine.I2S(*args, **kwargs)
                 except Exception as e:
                     last_err = e
-            
+
             print("I2S Fallback err (exhausted):", last_err)
             return None
         else:
@@ -330,34 +330,34 @@ def stream_http_audio(url):
     if not audio_out:
         print("Speaker init failed, cannot play audio via DAC")
         return False
-        
+
     if url.startswith("http://"):
         rest = url[7:]
     else:
         raise ValueError("Only http:// supported")
-    
+
     if "/" in rest:
         host_port = rest.split("/", 1)[0]
         path = "/" + rest.split("/", 1)[1]
     else:
         host_port = rest
         path = "/"
-        
+
     if ":" in host_port:
         host = host_port.split(":")[0]
         port = int(host_port.split(":")[1])
     else:
         host = host_port
         port = 80
-        
+
     addr = usocket.getaddrinfo(host, port)[0][-1]
     sock = usocket.socket()
     sock.connect(addr)
     sock.settimeout(30)
-    
+
     req = "GET %s HTTP/1.0\r\nHost: %s\r\n\r\n" % (path, host_port)
     sock.send(req.encode())
-    
+
     hdr = b""
     while b"\r\n\r\n" not in hdr:
         b = sock.recv(1)
@@ -365,17 +365,17 @@ def stream_http_audio(url):
             sock.close()
             return False
         hdr += b
-    
-    # Read WAV header
+
+
     header_left = 44
     while header_left > 0:
         chunk = sock.recv(header_left)
         if not chunk: break
         header_left -= len(chunk)
-        
+
     in_buf = bytearray(1024)
     out_buf = bytearray(2048)
-    
+
     while True:
         n = 0
         while n < 1024:
@@ -383,52 +383,52 @@ def stream_http_audio(url):
             if not chunk: break
             in_buf[n:n+len(chunk)] = chunk
             n += len(chunk)
-            
+
         if n == 0: break
-        
+
         samples = n // 2
         for j in range(samples):
             idx = j * 2
-            # Read 16-bit Signed LE
+
             s = in_buf[idx] | (in_buf[idx + 1] << 8)
             if s >= 32768: s -= 65536
-            
-            # Convert to Unsigned + Center Offset for DAC
+
+
             u = (s + 32768) & 0xFFFF
             u_lo = u & 0xFF
             u_hi = u >> 8
-            
-            # Map Stereo for built-in MSB
+
+
             o_idx = j * 4
             out_buf[o_idx]     = u_lo
             out_buf[o_idx + 1] = u_hi
             out_buf[o_idx + 2] = u_lo
             out_buf[o_idx + 3] = u_hi
-            
+
         try:
             audio_out.write(out_buf[:samples * 4])
         except Exception as e:
             print("Write err:", e)
             break
-            
+
     sock.close()
     if hasattr(audio_out, 'deinit'): audio_out.deinit()
     return True
 
-# ==========================================
-# MAIN LOOP
-# ==========================================
+
+
+
 
 def run_main():
     if not connect_wifi():
         return
-        
+
     adc = get_adc()
     ws = None
     l_db_s = ""
     s_db = 30.0
     last_db_post_time = time.ticks_ms()
-    
+
     draw_status("Hold Button A to Talk", 0xFFFFFF, f_s_o)
 
     def maintain_ws():
@@ -445,31 +445,31 @@ def run_main():
 
     while True:
         gc.collect()
-        # --- Voice Interaction ---
+
         if btnA.isPressed():
             if maintain_ws():
                 draw_status("Listening...", 0x0000FF, f_listen)
-                
+
                 send_buf = bytearray(AUDIO_CHUNK_SIZE)
                 buf_pos = 0
                 total_samples = 0
-                
+
                 rec_start_us = time.ticks_us()
-                
-                # Fastest possible analog capture loop
+
+
                 while btnA.isPressed():
                     try:
                         raw = adc.read() if adc else 2048
                         sample = (raw - 2048) * 16
-                        # Fast clamp
+
                         if sample > 32767: sample = 32767
                         elif sample < -32768: sample = -32768
-                        
+
                         send_buf[buf_pos] = sample & 0xFF
                         send_buf[buf_pos + 1] = (sample >> 8) & 0xFF
                         buf_pos += 2
                         total_samples += 1
-                        
+
                         if buf_pos >= AUDIO_CHUNK_SIZE:
                             if ws: ws.send(bytes(send_buf))
                             buf_pos = 0
@@ -482,31 +482,31 @@ def run_main():
                         ws.send(bytes(send_buf[:buf_pos]))
                     except:
                         pass
-                
+
                 draw_status("Thinking...", 0xFFFF00, f_t_1)
                 actual_rate = (total_samples * 1000000) // time.ticks_diff(time.ticks_us(), rec_start_us)
                 print("Captured at", actual_rate, "Hz")
-                
+
                 try:
                     ws.send(json.dumps({"event": "stop_listening", "sample_rate": actual_rate}))
-                    
-                    # Wait for TTS ready
+
+
                     resp = ws.recv()
                     if resp and isinstance(resp, str):
                         msg = json.loads(resp)
                         if msg.get("event") == "tts_ready":
-                            # Start direct TCP stream immediately
+
                             draw_status("Speaking...", 0x00FF00, f_speak)
                             http_base = WS_URL.replace("ws://", "http://").replace("/ws/voice", "")
                             audio_url = http_base + "/api/tts-audio"
-                            
+
                             try:
                                 stream_http_audio(audio_url)
                             except Exception as e:
                                 print("Stream Err:", e)
                                 draw_status("Play Failed", 0xFF0000, f_s_c)
                                 time.sleep(1)
-                                
+
                         elif msg.get("event") == "error":
                             draw_status("Error: " + msg.get("msg", "")[:10], 0xFF0000, f_s_c)
                             time.sleep(2)
@@ -515,14 +515,14 @@ def run_main():
                     try: ws.close()
                     except: pass
                     ws = None
-                
+
                 draw_status("Hold Button A to Talk", 0xFFFFFF, f_s_o)
 
-        # --- Noise Monitoring ---
+
         r_db = get_db(adc)
         s_db = (s_db * 0.8) + (r_db * 0.2)
         db_val = int(s_db)
-        
+
         i_c = 0x89b4fa if db_val < 40 else (0x94e2d5 if db_val < 55 else (0xf9e2af if db_val < 65 else (0xfab387 if db_val < 80 else 0xf38ba8)))
         lcd.fillRect(0, 0, 320, 4, i_c)
         db_s = "Noise: %d dB" % db_val
@@ -530,16 +530,16 @@ def run_main():
             lcd.fillRect(0, 4, 150, 15, 0x222222)
             lcd.print(db_s, 5, 4, i_c)
             l_db_s = db_s
-        
-        # Periodic DB Posting
+
+
         try:
             now_ms = time.ticks_ms()
             if time.ticks_diff(now_ms, last_db_post_time) > 15000:
                 last_db_post_time = now_ms
                 payload_str = '{"room_id":"%s","location":{"type":"Point","coordinates":[%s,%s]},"db":%s}' % (CURRENT_ROOM_ID, CURRENT_LNG, CURRENT_LAT, db_val)
                 http_url = WS_URL.replace("ws://", "http://").replace("/ws/voice", "/api/study-rooms")
-                
-                # Raw socket post
+
+
                 h_p = http_url.split("://")[1].split("/")[0]
                 p_th = "/" + http_url.split("://")[1].split("/", 1)[1] if "/" in http_url.split("://")[1] else "/"
                 h_b = h_p.split(":")[0]
@@ -554,8 +554,8 @@ def run_main():
                 del s, req, payload_str
         except:
             pass
-            
-        # Idle Face Blinking logic
+
+
         if db_val > 67:
             set_face(f_angry)
         else:
@@ -564,7 +564,7 @@ def run_main():
                 set_face(f_s_c)
             else:
                 set_face(f_s_o)
-                
+
         time.sleep(0.02)
 
 if __name__ == "__main__":

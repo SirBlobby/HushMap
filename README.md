@@ -1,64 +1,80 @@
-# HUSHMAP - AI Study Buddy & Room Monitor
+<div align="center">
+  <h1>HushMap</h1>
+  <h3>AI Intelligent Room Monitor</h3>
+  <br />
+  <p>
+    <a href="https://svelte.dev"><img src="https://img.shields.io/badge/SvelteKit-FF3E00?style=for-the-badge&logo=svelte&logoColor=white" alt="SvelteKit"></a>
+    <a href="https://fastapi.tiangolo.com/"><img src="https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi" alt="FastAPI"></a>
+    <a href="https://www.mongodb.com/"><img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB"></a>
+    <a href="https://m5stack.com/"><img src="https://img.shields.io/badge/IoT-M5GO-blue?style=for-the-badge&logo=microchip&logoColor=white" alt="M5GO"></a>
+    <a href="https://docker.com"><img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker"></a>
+  </p>
+</div>
 
-This project is a comprehensive solution featuring an M5GO smart device integration, an AI Voice and Vision Backend, and a Svelte frontend dashboard. It connects physical hardware to advanced AI models (Terp AI, ElevenLabs, YOLOv8) to provide a real-time study buddy experience and a study room occupancy monitor.
+<br/>
 
-## Project Architecture
+HushMap bridges the gap between hardware sensors and top-tier artificial intelligence pipelines (e.g. **Terp AI**, **ElevenLabs**, **YOLOv8**), delivering a seamless real-time learning assistant combined with live noise and occupancy metrics.
 
-### 1. Website Frontend (`/website` & Root)
-A SvelteKit application providing the user interface for our system.
-- Powered by `sv` (Svelte CLI) and Bun.
-- Configured for production deployment via Docker.
+---
 
-**Developing:**
-```bash
-cd website
-bun install
-bun run dev --open
-```
+## System Architecture
+
+### 1. Web Dashboard (`/website`)
+A responsive, high-fidelity PWA frontend written in Svelte 5 and styled seamlessly with Catppuccin color guidelines.
+* **Powered By**: SvelteKit, Vite, and Bun.
+* **Features**: Live interactive map tracking, responsive UI, persistent theming, and an autonomous browser-based Voice Agent calling modal interface.
+* **Setup**:
+  ```bash
+  cd website
+  bun install
+  bun run dev --open
+  ```
 
 ### 2. AI Backend Services (`/backend`)
-A FastAPI backend providing two core capabilities:
-- **Real-time Voice WebSockets (`/ws/voice`)**: Connects the M5GO device AND the web dashboard to STT (faster-whisper), LLMs (Terp AI), and TTS (ElevenLabs). It streams 16-bit PCM audio bytes natively over WebSockets in full-duplex. 
-- **Context DB Aggregation**: TerpAI automatically queries the MongoDB `study_rooms_collection` to gather live hardware decibel readings globally before answering your prompt.
-- **Vision Occupancy API (`/api/vision/room-status`)**: Uses YOLOv8 object detection to identify people and chairs in a room image, determining if a study room is fully occupied and pairing the closest person to an available chair.
+A blazing fast asynchronous HTTP server facilitating audio chunking and sensor metrics logic over full-duplex sockets.
+* **Core Capabilities**:
+  * **Voice Socket Pipelining**: WebSockets (`/ws/voice`) that hook incoming 16-bit PCM arrays into `faster-whisper`.
+  * **LLM Context Augmentation**: Seamlessly aggregates live MongoDB noise statistics (Decibel levels per location) to feed contextual history to the TerpAI engine!
+  * **Computer Vision Endpoint**: Exposes a `YOLOv8` tensor API (`/api/vision/room-status`) to parse webcam imagery, pinpoint seating capacities, and locate available chairs algorithmically.
+* **Setup**:
+  ```bash
+  cd backend
+  pip install -r requirements.txt
+  uvicorn server:app --host 0.0.0.0 --port 8000
+  ```
+  > [!WARNING]
+  > Host devices must have `ffmpeg`, `libgl1-mesa-glx`, and `libglib2.0-0` binaries natively installed to encode audio buffers and execute OpenCV rendering.
 
-**Developing:**
-```bash
-cd backend
-pip install -r requirements.txt
-uvicorn server:app --host 0.0.0.0 --port 8000
-```
-*(Requires `ffmpeg`, `libgl1-mesa-glx`, and `libglib2.0-0` installed on your system)*
+### 3. M5GO Hardware Node (`/m5go`)
+C-based MicroPython binaries tailored strictly for the IoT edge nodes traversing the physical campus.
+* **Features**: Connects internally wired I2S Microphone blocks to route direct byte arrays securely out across WPA/WPA2 networks into the main API gateway using minimal payload overhead. Push-button PTT interfaces built directly into the screen chassis.
 
-### 3. M5GO Device (`/m5go`)
-MicroPython scripts for the M5Stack M5GO device.
-- Uses `uwebsockets` to connect to the backend.
-- High-quality audio I2S configuration for the internal microphone and speaker.
-- Push-to-talk integration: Hold Button A to talk to the AI, release to get an audio response back.
+---
 
-## Docker Setup
+## Docker Production Setup
 
-The entire stack can be run via Docker Compose, which builds both the Svelte website and the Python AI Backend into a single seamless container.
+The entire monolithic architecture cleanly orchestrates via docker compose. Frontends compile out via SSR, and Python APIs wire natively within a segregated container network loop.
 
 ```bash
 docker-compose up --build
 ```
+> The global deployment interface listens on port `8000`.
 
-- **App (Frontend + Backend)**: Runs on port `8000`
+---
 
-## Configuration
+## Core Configuration
 
-Make sure you set up your `.env` variables before running the Docker containers or local servers.
+Before starting services, strictly adhere to configuring your environment files (`.env`) within `/backend`:
 
-Create a `.env` in the `/backend` folder:
 ```ini
 ELEVENLABS_API_KEY=sk_...
 ELEVENLABS_VOICE_ID=JBFqnCBsd6RMkjVDRZzb
-TERP_AI_BEARER_TOKEN=eyJhbGciOiJ...
-TERP_AI_CONVERSATION_ID=37fa27cc-542a-c8a8-9c31-9d1954fdc1d2
-MONGODB_URI=mongodb+srv://...
+TERP_AI_BEARER_TOKEN=eyJhbGciOiJSUz...
+TERP_AI_CONVERSATION_ID=3a150d8e-bb12-...
+MONGODB_URI=mongodb+srv://user:pass@cluster0...
 ```
 
-Update your `.env` to match the exact `authorization: Bearer` and `parentSegmentId` context from TerpAI if timeouts occur.
+> [!TIP]
+> Ensure the `.env` mirrors your authentic `x-cosmos-session` headers and bearer tokens exported from a live browser session to prevent immediate 401 Unauthorized timeouts in the Terp AI pipeline.
 
-Update the `/m5go/main.py` file to include your Wi-Fi credentials and the correct local IP for the WebSocket (`WS_URL`).
+For IoT clients, update `/m5go/main.py` explicitly to broadcast to your running router IP namespace matching your specific VLAN.

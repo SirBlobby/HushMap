@@ -8,6 +8,7 @@ import requests
 import json
 import base64
 import urllib.request
+
 # import ssl
 # ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -35,14 +36,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# MongoDB Setup
+
 import certifi
 MONGO_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017/")
 mongo_client = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
 db = mongo_client.study_buddy_db
 study_rooms_collection = db.study_rooms
 
-# Pydantic models for Study Room Data
+
 class GeoJSONPoint(BaseModel):
     type: str = "Point"
     coordinates: List[float]
@@ -75,12 +76,12 @@ HEADERS = {
     "sec-fetch-site": "same-origin",
     "sentry-trace": "250c82a03041415b99422d838ccc7003-9a9ec11d7fd0293b-0",
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0",
-    "x-cosmos-session-281286": "0:-1#10931",
-    "x-cosmos-session-295334": "0:-1#749854",
-    "x-cosmos-session-317755": "0:-1#191601",
-    "x-cosmos-session-382299": "0:-1#265024",
-    "x-cosmos-session-418988": "0:-1#4058856",
-    "x-cosmos-session-793952": "0:-1#14004",
+    "x-cosmos-session-281286": "0:-1",
+    "x-cosmos-session-295334": "0:-1",
+    "x-cosmos-session-317755": "0:-1",
+    "x-cosmos-session-382299": "0:-1",
+    "x-cosmos-session-418988": "0:-1",
+    "x-cosmos-session-793952": "0:-1",
     "x-request-id": "6a128b8a-7f63-4f97-a40b-bfd31b4a376e",
     "x-timezone": "America/New_York",
 }
@@ -97,7 +98,7 @@ def _write_wav_to_buffer(pcm_data: bytes, sample_rate: int = SAMPLE_RATE) -> byt
     buf.write(b"WAVE")
     buf.write(b"fmt ")
     buf.write(struct.pack("<I", 16))
-    buf.write(struct.pack("<H", 1))  # PCM
+    buf.write(struct.pack("<H", 1))
     buf.write(struct.pack("<H", NUM_CHANNELS))
     buf.write(struct.pack("<I", sample_rate))
     buf.write(struct.pack("<I", byte_rate))
@@ -112,8 +113,8 @@ def _transcribe_pcm(pcm_data: bytes, sample_rate: int = SAMPLE_RATE) -> str:
     """Transcribe raw PCM audio using faster-whisper via a temp WAV file."""
     from faster_whisper import WhisperModel
     print(f"  Using sample rate: {sample_rate} Hz")
-    
-    # Debug: analyze PCM audio quality
+
+
     num_samples = len(pcm_data) // 2
     if num_samples > 0:
         samples = list(struct.unpack(f"<{num_samples}h", pcm_data[:num_samples * 2]))
@@ -121,30 +122,30 @@ def _transcribe_pcm(pcm_data: bytes, sample_rate: int = SAMPLE_RATE) -> str:
         mean_s = sum(samples) / num_samples
         rms = (sum(s * s for s in samples) / num_samples) ** 0.5
         print(f"  PCM stats (raw): {num_samples} samples, min={min_s}, max={max_s}, mean={mean_s:.1f}, RMS={rms:.1f}")
-        
-        # Remove DC offset (center audio at 0)
+
+
         dc_offset = int(round(mean_s))
         samples = [max(-32768, min(32767, s - dc_offset)) for s in samples]
         pcm_data = struct.pack(f"<{num_samples}h", *samples)
-        
-        # Stats after correction
+
+
         rms_fixed = (sum(s * s for s in samples) / num_samples) ** 0.5
         print(f"  PCM stats (fixed): DC offset removed={dc_offset}, RMS={rms_fixed:.1f}")
-    
+
     wav_data = _write_wav_to_buffer(pcm_data, sample_rate=sample_rate)
 
     tmp_fd, tmp_path = tempfile.mkstemp(suffix=".wav")
     try:
         with os.fdopen(tmp_fd, "wb") as f:
             f.write(wav_data)
-        
-        # Save a debug copy so we can listen
+
+
         debug_path = os.path.join(os.path.dirname(__file__), "debug_audio.wav")
         with open(debug_path, "wb") as df:
             df.write(wav_data)
         print(f"  Debug WAV saved to: {debug_path}")
 
-        # Initialize the model (using base model for speed)
+
         model = WhisperModel("base", device="cpu", compute_type="int8")
         segments, info = model.transcribe(tmp_path, beam_size=5)
         seg_list = list(segments)
@@ -190,7 +191,7 @@ def get_terp_ai_response(message: str) -> str:
     except Exception as e:
         print(f"Terp AI error: {e}")
         return "I am sorry, there was an error connecting to Terp AI."
-    
+
     return full_response
 
 def _convert_to_pcm(audio_data: bytes, input_format: str = "mp3") -> bytes | None:
@@ -232,7 +233,7 @@ def _generate_tts(text: str) -> bytes | None:
         print("ElevenLabs API key not configured")
         return None
 
-    # Request PCM directly — no ffmpeg needed
+
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}?output_format=pcm_16000"
 
     headers = {
@@ -267,7 +268,7 @@ def _generate_tts(text: str) -> bytes | None:
         print(f"ElevenLabs TTS error: {e}")
         return None
 
-# Latest TTS WAV stored in memory for HTTP download by M5GO
+
 _latest_tts_wav = None
 
 @app.get("/api/tts-audio")
@@ -282,40 +283,40 @@ async def websocket_voice(websocket: WebSocket):
     await websocket.accept()
     print("Device connected to WebSocket.")
     audio_buffer = bytearray()
-    
+
     try:
         while True:
             data = await websocket.receive()
-            
+
             if "bytes" in data:
                 audio_buffer.extend(data["bytes"])
-                
+
             elif "text" in data:
                 try:
                     msg = json.loads(data["text"])
                     if msg.get("event") == "stop_listening":
                         pcm_data = bytes(audio_buffer)
-                        audio_buffer = bytearray()  # Reset for next time
+                        audio_buffer = bytearray()
                         device_sample_rate = msg.get("sample_rate", SAMPLE_RATE)
-                        
+
                         print(f"Received stop_listening event. Buffer size: {len(pcm_data)} bytes, sample_rate: {device_sample_rate} Hz")
-                        
+
                         if len(pcm_data) < 3200:
                             print("Audio too short, ignoring.")
                             await websocket.send_bytes(b"")
                             continue
-                            
-                        # Step 1: Speech to Text
+
+
                         print("Transcribing...")
                         user_text = _transcribe_pcm(pcm_data, sample_rate=device_sample_rate)
                         if not user_text:
                             print("Transcription failed or empty.")
                             await websocket.send_text(json.dumps({"event": "error", "msg": "No speech detected"}))
                             continue
-                        
+
                         print(f"User said: {user_text}")
-                        
-                        # Step 2: Terp AI
+
+
                         print("Sending to Terp AI...")
                         context_str = get_latest_locations_context()
                         augmented_prompt = f"USER ASKS: {user_text}\n\n[SYSTEM CONTEXT - LATEST UMD ROOM STATS TO HELP YOU ANSWER IF ASKED]:\n{context_str}"
@@ -324,15 +325,15 @@ async def websocket_voice(websocket: WebSocket):
                             print("No response from Terp AI.")
                             await websocket.send_text(json.dumps({"event": "error", "msg": "No AI response"}))
                             continue
-                        
+
                         print(f"Terp AI response: {ai_response_text}")
-                        
-                        # Step 3: Text to Speech
+
+
                         print("Generating TTS...")
                         tts_pcm = _generate_tts(ai_response_text)
-                        
+
                         if tts_pcm:
-                            # Save as WAV for HTTP download by M5GO
+
                             global _latest_tts_wav
                             _latest_tts_wav = _write_wav_to_buffer(tts_pcm)
                             print(f"TTS WAV ready: {len(_latest_tts_wav)} bytes, serving via /api/tts-audio")
@@ -343,7 +344,7 @@ async def websocket_voice(websocket: WebSocket):
                         else:
                             print("TTS failed.")
                             await websocket.send_text(json.dumps({"event": "error", "msg": "TTS failed"}))
-                            
+
                 except json.JSONDecodeError:
                     pass
                 except Exception as e:
@@ -383,41 +384,41 @@ def get_latest_locations_context() -> str:
         }}
     ]
     latest_stats = list(study_rooms_collection.aggregate(pipeline))
-    
+
     if not latest_stats:
         return "No recent location noise stats available today."
-        
+
     room_dict = {loc["id"]: loc["name"] for loc in UMD_LOCATIONS}
-    
+
     lines = ["Latest Study Room Stats:"]
     for stat in latest_stats:
         room_id = stat.get("_id")
         name = room_dict.get(room_id, room_id)
         db = stat.get("latest_db", 0.0)
-        
+
         status = "Quiet"
         if isinstance(db, (int, float)):
             if db >= 65: status = "Loud"
             elif db >= 55: status = "Moderate"
-            
+
         lines.append(f"- {name}: Noise Level {db:.1f} dB ({status})")
-        
+
     return "\n".join(lines)
 
 @app.post("/api/study-rooms")
 async def create_study_room_data(data: StudyRoomData):
-    # Check if the coordinates match one of the known locations (with small tolerance)
+
     is_valid_location = False
     req_lng, req_lat = data.location.coordinates[0], data.location.coordinates[1]
-    
+
     for loc in UMD_LOCATIONS:
         if abs(loc["lng"] - req_lng) < 0.0001 and abs(loc["lat"] - req_lat) < 0.0001:
             is_valid_location = True
-            # Override coordinates to exactly match known location for consistency
+
             data.location.coordinates = [loc["lng"], loc["lat"]]
             data.room_id = loc["id"]
             break
-            
+
     if not is_valid_location:
         from fastapi import HTTPException
         raise HTTPException(status_code=400, detail="Invalid location. Coordinates must correspond to a known UMD location.")
@@ -438,7 +439,7 @@ async def get_study_room_history():
     """Get all study room data from the last 24 hours."""
     twenty_four_hours_ago = datetime.utcnow() - timedelta(hours=24)
     rooms = list(study_rooms_collection.find(
-        {"date": {"$gte": twenty_four_hours_ago}}, 
+        {"date": {"$gte": twenty_four_hours_ago}},
         {"_id": 0}
     ).sort("date", -1))
     return {"data": rooms}
@@ -448,13 +449,13 @@ async def serve_spa(full_path: str):
     static_dir = "static"
     if not os.path.exists(static_dir):
         return {"error": "Static directory not found. Please build the frontend."}
-        
+
     static_path = os.path.join(static_dir, full_path)
     if os.path.isfile(static_path):
         return FileResponse(static_path)
-    
+
     index_path = os.path.join(static_dir, "index.html")
     if os.path.exists(index_path):
         return FileResponse(index_path)
-        
+
     return {"error": "index.html not found in static directory"}

@@ -22,16 +22,16 @@ export const UMD_LOCATIONS: StudyLocation[] = [
 export const DEFAULT_VIEW = { lng: -76.94259561477574, lat: 38.98813763708658, zoom: 15.5 };
 
 class MapState {
-	// The target coordinates the map should fly to
+
 	targetFlyTo = $state<{ lng: number; lat: number; zoom: number; timestamp: number } | null>(null);
 
 	selectedLocation = $state<StudyLocation | null>(null);
 	historyData = $state<any[]>([]);
 	historyLoading = $state<boolean>(false);
-	historyPlaybackTime = $state<number>(Date.now()); // The current time scrubber for 24h
+	historyPlaybackTime = $state<number>(Date.now());
 
 	flyTo(lng: number, lat: number, zoom: number = 18) {
-		this.targetFlyTo = { lng, lat, zoom, timestamp: Date.now() }; // timestamp ensures reactivity even if same coords
+		this.targetFlyTo = { lng, lat, zoom, timestamp: Date.now() };
 	}
 
 	flyHome() {
@@ -41,7 +41,7 @@ class MapState {
 	async fetchHistoryData() {
 		this.historyLoading = true;
 		try {
-			// Fetch from FastAPI backend
+
 			const res = await fetch('http://127.0.0.1:8000/api/study-rooms/history');
 			if (res.ok) {
 				const json = await res.json();

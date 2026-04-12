@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 import base64
 import urllib.request
 import urllib.error
@@ -28,16 +28,16 @@ HEADERS = {
     "sec-fetch-mode": "cors",
     "sec-fetch-site": "same-origin",
     "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-    "x-cosmos-session-281286": "0:-1#10931",
-    "x-cosmos-session-295334": "0:-1#745295",
-    "x-cosmos-session-317755": "0:-1#190559",
-    "x-cosmos-session-382299": "0:-1#264026",
-    "x-cosmos-session-418988": "0:-1#4052014",
-    "x-cosmos-session-793952": "0:-1#13832",
+    "x-cosmos-session-281286": "0:-1
+    "x-cosmos-session-295334": "0:-1
+    "x-cosmos-session-317755": "0:-1
+    "x-cosmos-session-382299": "0:-1
+    "x-cosmos-session-418988": "0:-1
+    "x-cosmos-session-793952": "0:-1
     "x-timezone": "America/New_York",
 }
 
-# The parent segment ID to chain from — update this to your latest segment
+
 INITIAL_PARENT_SEGMENT_ID = "d7765a66-a24b-4620-b003-11b4c1ed2c36"
 
 
@@ -59,7 +59,7 @@ def send_message(message: str, conversation_id: str = CONVERSATION_ID, parent_se
 
     payload = json.dumps(body).encode("utf-8")
 
-    # Generate fresh per-request headers
+
     sentry_trace_id = uuid.uuid4().hex
     sentry_span_id = uuid.uuid4().hex[:16]
     headers = dict(HEADERS)
@@ -105,7 +105,7 @@ def send_message(message: str, conversation_id: str = CONVERSATION_ID, parent_se
                         print(f"\n[IDs: {decoded}]", file=sys.stderr)
                         try:
                             ids = json.loads(decoded)
-                            # Try common key names for the segment ID
+
                             new_segment_id = (
                                 ids.get("segmentId")
                                 or ids.get("id")

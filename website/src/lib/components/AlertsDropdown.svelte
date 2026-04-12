@@ -23,7 +23,7 @@
 				<h3 class="font-display font-medium text-white text-sm">Active Noise Alerts</h3>
 				<span class="text-xs text-slate-400 bg-white/5 py-0.5 px-2 rounded-full">{alertsState.activeAlerts.length} New</span>
 			</div>
-			
+
 			<div class="max-h-64 overflow-y-auto">
 				{#each alertsState.activeAlerts as alert (alert.id)}
 					<div class="w-full text-left p-4 border-b border-white/5 hover:bg-white/5 transition-colors flex items-start gap-3 group relative">
@@ -33,8 +33,8 @@
 							<p class="text-xs text-red-400/80 mt-1">{alert.loc}</p>
 							<p class="text-[10px] text-slate-500 font-mono mt-2">{alert.time}</p>
 						</div>
-						<button 
-							onclick={(e) => { e.stopPropagation(); alertsState.dismissAlert(alert.id); }} 
+						<button
+							onclick={(e) => { e.stopPropagation(); alertsState.dismissAlert(alert.id); }}
 							class="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors"
 							aria-label="Close alert"
 						>
@@ -42,7 +42,7 @@
 						</button>
 					</div>
 				{/each}
-				
+
 				{#if alertsState.activeAlerts.length === 0}
 					<div class="p-6 text-center text-slate-500">
 						<Icon icon="mdi:check-circle-outline" class="text-3xl text-neon-primary mx-auto mb-2 opacity-50" />
@@ -63,8 +63,8 @@
 			<div class="flex-1">
 				<div class="flex justify-between items-start">
 					<p class="text-sm font-bold text-white tracking-wide">NOISE SPIKE: {alert.level} dB</p>
-					<button 
-						onclick={() => alertsState.dismissAlert(alert.id)} 
+					<button
+						onclick={() => alertsState.dismissAlert(alert.id)}
 						class="text-slate-400 hover:text-white -mr-1 -mt-1 p-1 transition-colors"
 					>
 						<Icon icon="mdi:close" class="text-sm" />

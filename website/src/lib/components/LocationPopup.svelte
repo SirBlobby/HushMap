@@ -3,7 +3,7 @@
 	import { themeState } from '$lib/states/theme.svelte';
 	import Icon from '@iconify/svelte';
 	import { onMount, onDestroy } from 'svelte';
-	// Dynamic import for chart.js to avoid SSR issues
+
 	let Chart: any;
 
 	let chartCanvas: HTMLCanvasElement;
@@ -32,13 +32,13 @@
 		return 'Harmful';
 	}
 
-	// Calculate metrics
+
 	let current2hAvg = $derived.by(() => {
 		if (!mapState.selectedLocation) return 0;
 		const now = Date.now();
 		const twoHoursAgo = now - 2 * 60 * 60 * 1000;
-		const points = mapState.historyData.filter(d => 
-			d.room_id === mapState.selectedLocation?.id && 
+		const points = mapState.historyData.filter(d =>
+			d.room_id === mapState.selectedLocation?.id &&
 			new Date(d.date.endsWith('Z') ? d.date : d.date + 'Z').getTime() >= twoHoursAgo
 		);
 		if (points.length === 0) return 0;
@@ -53,7 +53,7 @@
 		if (!Chart || !chartCanvas || !mapState.selectedLocation) return;
 		if (chartInstance) chartInstance.destroy();
 
-		// filter past 24h for this loc
+
 		const locData = mapState.historyData.filter(d => d.room_id === mapState.selectedLocation?.id)
 			.map(d => ({
 				x: new Date(d.date.endsWith('Z') ? d.date : d.date + 'Z'),
@@ -63,11 +63,11 @@
 
 		const isLight = themeState.isLight;
 		const isCB = themeState.isColorBlindFriendly;
-		
+
 		const ctx = chartCanvas.getContext('2d');
 		let gradientLine = statusColor;
 		let gradientFill = statusColor + '33';
-		
+
 		if (ctx) {
 			gradientLine = ctx.createLinearGradient(0, 0, 0, 200);
 			gradientLine.addColorStop(0, getChartColor(85, isLight, isCB));
@@ -145,7 +145,7 @@
 
 	onMount(async () => {
 		const chartModule = await import('chart.js/auto');
-		const chartjsAdapter = await import('chartjs-adapter-date-fns'); // Need this for time scaling
+		const chartjsAdapter = await import('chartjs-adapter-date-fns');
 		Chart = chartModule.default;
 		if (mapState.selectedLocation) drawChart();
 	});

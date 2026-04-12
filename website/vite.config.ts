@@ -12,7 +12,7 @@ export default defineConfig({
 				name: 'HushMap',
 				short_name: 'HushMap',
 				description: 'Campus noise mapping and intervention.',
-				theme_color: '#0f172a', /* slate-900 */
+				theme_color: '#0f172a',
 				background_color: '#0f172a',
 				display: 'standalone',
 				icons: [

@@ -2,7 +2,7 @@ import random
 from datetime import datetime, timedelta
 from pymongo import MongoClient
 
-# MongoDB Setup
+
 MONGO_URI = "mongodb+srv://SarayuJ:SarayuJ123@cluster0.xjy5c.mongodb.net/testing"
 client = MongoClient(MONGO_URI)
 db = client.study_buddy_db
@@ -25,65 +25,65 @@ def get_db_for_time_and_location(hour, loc_id):
     Generate a dB level based on the hour of the day and the location.
     This creates a recognizable pattern for AI analysis.
     """
-    base_db = 40.0 # Ambient noise
-    
+    base_db = 40.0
+
     if loc_id in ['mckeldin', 'esj']:
-        # Busy during the day (10am - 4pm)
+
         if 10 <= hour <= 16:
             base_db = 75.0
         elif 17 <= hour <= 22:
             base_db = 60.0
         else:
             base_db = 45.0
-            
+
     elif loc_id in ['stem', 'iribe']:
-        # Busy in the afternoon/evening (2pm - 8pm)
+
         if 14 <= hour <= 20:
             base_db = 70.0
         elif 9 <= hour <= 13:
             base_db = 55.0
         else:
             base_db = 42.0
-            
+
     elif loc_id == 'stamp':
-        # Busy during lunch (12pm - 2pm) and dinner (5pm - 7pm)
+
         if 12 <= hour <= 14 or 17 <= hour <= 19:
             base_db = 85.0
         elif 10 <= hour <= 21:
             base_db = 65.0
         else:
             base_db = 50.0
-            
+
     else:
-        # General locations (Clarice, Yahentamitsi, Reckord, Hornbake)
-        # Moderate noise during the day
+
+
         if 9 <= hour <= 18:
             base_db = 60.0
         else:
             base_db = 45.0
-            
-    # Add random noise to make it look realistic (+/- 5 dB)
+
+
     noise = random.uniform(-5.0, 5.0)
     return max(30.0, min(100.0, base_db + noise))
 
 def generate_fake_data():
     print("Clearing existing study room data...")
     collection.delete_many({})
-    
+
     now = datetime.utcnow()
     start_time = now - timedelta(hours=24)
-    
+
     docs_to_insert = []
-    
+
     print("Generating 24 hours of fake data with patterns...")
-    # Generate data points every 15 minutes for the last 24 hours
+
     current_time = start_time
     while current_time <= now:
         hour = current_time.hour
-        
+
         for loc in UMD_LOCATIONS:
             db_level = get_db_for_time_and_location(hour, loc["id"])
-            
+
             doc = {
                 "room_id": loc["id"],
                 "location": {
@@ -94,9 +94,9 @@ def generate_fake_data():
                 "date": current_time
             }
             docs_to_insert.append(doc)
-            
+
         current_time += timedelta(minutes=15)
-        
+
     print(f"Inserting {len(docs_to_insert)} records into MongoDB...")
     collection.insert_many(docs_to_insert)
     print("Done!")

@@ -31,19 +31,19 @@
 	function updateMapData() {
 		if (!mapInstance || !mapInstance.getSource("study-locations")) return;
 
-		// Group history by location using room_id
+
 		const latestByLoc = new Map();
 		for (const room of studyRoomsData) {
-			// Use room_id as the key, fallback to coordinates if room_id is missing for some reason
+
 			const key = room.room_id || room.location.coordinates.join(",");
 
-			// Ensure date is treated as UTC
+
 			const roomDateString = room.date.endsWith("Z")
 				? room.date
 				: room.date + "Z";
 			const roomDate = new Date(roomDateString);
 
-			// Filter out points strictly in the future of our playback time
+
 			if (playbackTime && roomDate.getTime() > playbackTime) continue;
 
 			if (!latestByLoc.has(key)) {
@@ -68,7 +68,7 @@
 		}
 
 		const features = latestRooms.map((room: any) => {
-			// Find the corresponding UMD_LOCATION to get the name
+
 			let matchingLoc = null;
 			if (room.room_id) {
 				matchingLoc = UMD_LOCATIONS.find(
@@ -98,7 +98,7 @@
 			};
 		});
 
-		// Add features for UMD_LOCATIONS that don't have sensor data yet
+
 		UMD_LOCATIONS.forEach((loc) => {
 			const hasData = features.some(
 				(f) => f.properties.room_id === loc.id,
@@ -113,7 +113,7 @@
 					},
 					properties: {
 						room_id: loc.id,
-						db: 0, // 0 db for no data
+						db: 0,
 						name: loc.name,
 						date: new Date().toISOString(),
 					},
@@ -277,7 +277,7 @@
 		`;
 	}
 
-	// Watch and react to mapState updates using a Svelte 5 $effect
+
 	$effect(() => {
 		const target = mapState.targetFlyTo;
 		if (mapInstance && target) {
@@ -368,7 +368,7 @@
 		if (!browser || !mapContainer) return;
 
 		fetchStudyRoomData();
-		refreshInterval = setInterval(fetchStudyRoomData, 10000); // refresh every 10s
+		refreshInterval = setInterval(fetchStudyRoomData, 10000);
 
 		let map: any;
 
@@ -468,7 +468,7 @@
 	:global(.maplibregl-ctrl-group) {
 		background: var(
 			--color-panel-glass
-		) !important; /* already switches per theme */
+		) !important;
 		backdrop-filter: blur(12px) !important;
 		border: 1px solid
 			color-mix(in srgb, var(--color-surface1) 30%, transparent) !important;
@@ -502,6 +502,6 @@
 			24,
 			37,
 			0.9
-		) !important; /* matches bg-crust */
+		) !important;
 	}
 </style>
