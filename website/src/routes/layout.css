@@ -22,9 +22,11 @@
   --shadow-glow-primary: 0 0 15px rgba(243, 139, 168, 0.4);
   --shadow-glow-alert: 0 0 15px rgba(243, 139, 168, 0.4);
   --shadow-glow-blue: 0 0 15px rgba(243, 139, 168, 0.4);
+  --map-icon-filter: invert(1) contrast(100) opacity(0.9);
 }
 
 .light-theme {
+  --map-icon-filter: invert(0) contrast(150) opacity(0.9);
   --color-crust: #dce0e8;
   --color-mantle: #e6e9ef;
   --color-base: #eff1f5;

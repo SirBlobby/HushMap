@@ -66,10 +66,10 @@
 
 	<!-- Top Bar / History Mode Overlay -->
 	<header class="absolute top-6 left-6 md:left-8 z-10">
-		<div class="glass-panel flex items-center justify-between md:justify-start gap-4 px-6 py-3 rounded-2xl shadow-lg border-l-2 border-l-neon-blue drop-shadow-[0_0_10px_rgba(0,243,255,0.2)] h-12">
+		<div class="glass-panel flex items-center justify-between md:justify-start gap-4 px-6 py-3 rounded-2xl shadow-lg border-l-2 border-l-neon-primary h-12" style="box-shadow: var(--shadow-glow-primary)">
 			<div>
 				<h1 class="font-display font-semibold text-white tracking-wider flex items-center gap-2">
-					<Icon icon="mdi:history" class="text-neon-blue drop-shadow-[0_0_5px_rgba(0,243,255,0.8)] text-lg" />
+					<Icon icon="mdi:history" class="text-neon-primary text-lg" style="filter: drop-shadow(var(--shadow-glow-primary))" />
 					HISTORICAL DATA
 				</h1>
 			</div>

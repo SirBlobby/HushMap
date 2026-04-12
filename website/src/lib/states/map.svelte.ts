@@ -19,11 +19,16 @@ export const UMD_LOCATIONS: StudyLocation[] = [
 	{ id: 'stamp', name: 'Stamp Student Union', hasFloors: true, floors: ['Basement', 'Floor 1', 'Floor 2'], lng: -76.94473083972326, lat: 38.988130238874874 }
 ];
 
-export const DEFAULT_VIEW = { lng: -76.9425, lat: 38.9859, zoom: 16.5 };
+export const DEFAULT_VIEW = { lng: -76.94259561477574, lat: 38.98813763708658, zoom: 15.5 };
 
 class MapState {
 	// The target coordinates the map should fly to
 	targetFlyTo = $state<{ lng: number; lat: number; zoom: number; timestamp: number } | null>(null);
+
+	selectedLocation = $state<StudyLocation | null>(null);
+	historyData = $state<any[]>([]);
+	historyLoading = $state<boolean>(false);
+	historyPlaybackTime = $state<number>(Date.now()); // The current time scrubber for 24h
 
 	flyTo(lng: number, lat: number, zoom: number = 18) {
 		this.targetFlyTo = { lng, lat, zoom, timestamp: Date.now() }; // timestamp ensures reactivity even if same coords
@@ -31,6 +36,22 @@ class MapState {
 
 	flyHome() {
 		this.flyTo(DEFAULT_VIEW.lng, DEFAULT_VIEW.lat, DEFAULT_VIEW.zoom);
+	}
+
+	async fetchHistoryData() {
+		this.historyLoading = true;
+		try {
+			// Fetch from FastAPI backend
+			const res = await fetch('http://127.0.0.1:8000/api/study-rooms/history');
+			if (res.ok) {
+				const json = await res.json();
+				this.historyData = json.data;
+			}
+		} catch (e) {
+			console.error("Failed to fetch history data", e);
+		} finally {
+			this.historyLoading = false;
+		}
 	}
 }
 

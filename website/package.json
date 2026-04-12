@@ -14,7 +14,10 @@
 	"type": "module",
 	"dependencies": {
 		"@auth0/auth0-spa-js": "^2.19.0",
-		"maplibre-gl": "^5.0.1"
+		"maplibre-gl": "^5.0.1",
+		"chart.js": "^4.4.0",
+		"chartjs-adapter-date-fns": "^3.0.0",
+		"date-fns": "^2.30.0"
 	},
 	"devDependencies": {
 		"@iconify/svelte": "^5.2.1",
