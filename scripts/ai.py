@@ -5,15 +5,15 @@ import urllib.error
 import json
 import sys
 
-CONVERSATION_ID = "5e752e56-06c6-ec73-1f13-456029ce1299"
+CONVERSATION_ID = "5e3fb381-ce00-76db-0c03-7757f7521af1"
 
 HEADERS = {
     "accept": "*/*",
     "accept-language": "en-US,en;q=0.9",
-    "authorization": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6InJDaTAwaFQ0ZjlhM3JtcXJuSUYtZEpyNnpMWEdNQllwSS1YcGVrN1g4dFUiLCJ0eXAiOiJKV1QifQ.eyJ1cG4iOiJjNDQ2ZDlhMC00YWZjLTQ5YzAtOWQ2YS1lYTM4YWZjODM4NTIiLCJpcCI6IkVudHJhSWQiLCJlbWFpbCI6ImdtYW5qdW5hQGdtdS5lZHUiLCJ1dm8iOnsiaWQiOiJjNDQ2ZDlhMC00YWZjLTQ5YzAtOWQ2YS1lYTM4YWZjODM4NTIiLCJuIjoiR2FnYW4gTWFuanVuYXRoYSJ9LCJ1ciI6W10sImNhcCI6W10sInYiOiIyLjI2MDUuNDQ3Mi4wIiwibmJmIjoxNzc1OTE5OTc1LCJleHAiOjE3NzU5MjE3NzUsImlhdCI6MTc3NTkxOTk3NSwiaXNzIjoiaHR0cHM6Ly9uZWJ1bGFvbmUuYWkiLCJhdWQiOiJOZWJ1bGFPbmUifQ.YQQZ0An_VFutZx_xLGkI3TN8e9qUR-rs5IzGoSbuVJWd8FEq2wFNK5xoH4m8kPuviE-4GoRtiEaQANNRwA9T1VNolk4ydvbcmSlwfTA4rXQ0v0d-Evy_g-K1AasJBqqgo3bQI4YTVeWaLFckr9XFq3gVLoNdhANtq6YxsVtIGvBS7Y6nrO14EhxzBJ9e9PQXtTqmp4yxvO0DmTN1D4Se6tgWqxpA31muq3Lk3QsWeu1QaAOlS6vDf6xCbLslOtM1I5dHyZc5TuMD67v8dcUEoUtlRLevPZQPe0l-398p3c2cgCkAyzJsGQiVZK7q80lr7q0YMPu8eLdb_fv9yZU_PA",
+    "authorization": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImtTQTY0dEFUMEx3RERELTdXbG5VRU1TQXBULXR2dl94WUtWc0lHNW1nR1kiLCJ0eXAiOiJKV1QifQ.eyJ1cG4iOiIzMDY0NDY5Yi1mM2E4LTQwOTktYThlYy00ODUwZWI2YjFkZWUiLCJpcCI6IkVudHJhSWQiLCJlbWFpbCI6Imp3dTEyMzQ0QHVtZC5lZHUiLCJ1dm8iOnsiaWQiOiIzMDY0NDY5Yi1mM2E4LTQwOTktYThlYy00ODUwZWI2YjFkZWUiLCJuIjoiSm9saWUgV3UifSwidXIiOltdLCJjYXAiOlsiYTc5YmUyMTMtMTBhZS00MWE3LWJjZmYtOTdkMmI2YmE3MDY5Il0sInYiOiIyLjI2MDUuNDQ3Mi4wIiwibmJmIjoxNzc1OTUzMjU0LCJleHAiOjE3NzU5NTUwNTQsImlhdCI6MTc3NTk1MzI1NCwiaXNzIjoiaHR0cHM6Ly9uZWJ1bGFvbmUuYWkiLCJhdWQiOiJOZWJ1bGFPbmUifQ.DiIFp_bJsPqghC5smL6KNc_vJEcpXLB97VHbU3YFciNQTsENiJ3nBUXWo7Ob36JdqYcb9pIZmnhV-IronFQwDg910jqtJ7-jM-Qdc5UbUAynU07BvCmCFrebIn45BwSMix1C-YZMEdH8hw_oAxLAIC9iK03luJAvJQbJKuENucPN3ashpL0MFRWMv2CEa0a1adRAG9SMUtM8KChbD95dqX9gKLxd6gUcnkUT24C18W904NBwDUj-q6Yq0zjEhBghAlUX_AaNH0wsfH9FTRKD_LBJ5iZ2l1aZNmsFMZC7GTUr1_tPQDp03j4__74o1fE9EGOG68j4uVvJPiXWg68UBQ",
     "content-type": "application/json",
-    "origin": "https://patriotai.gmu.edu",
-    "referer": "https://patriotai.gmu.edu/chat/8c3fc7f0-7c8b-4f2f-849c-5e2a45915066/5e752e56-06c6-ec73-1f13-456029ce1299",
+    "origin": "https://terpai.umd.edu",
+    "referer": "https://terpai.umd.edu/chat/1eaa95ea-9b73-4850-8534-d1552401513a/5e3fb381-ce00-76db-0c03-7757f7521af1",
     "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
     "x-cosmos-session-219665": "0:-1#4733",
     "x-cosmos-session-446290": "0:-1#107702",
@@ -24,7 +24,7 @@ HEADERS = {
 }
 
 def send_message(message: str, conversation_id: str = CONVERSATION_ID):
-    url = f"https://patriotai.gmu.edu/api/internal/userConversations/{conversation_id}/segments"
+    url = f"https://terpai.umd.edu/api/internal/userConversations/{conversation_id}/segments"
     data = json.dumps({
         "question": message,
         "visionImageIds": [],
@@ -62,7 +62,7 @@ def send_message(message: str, conversation_id: str = CONVERSATION_ID):
         return
 
 def main():
-    print("Patriot AI Chat - Type 'quit' or 'exit' to exit\n")
+    print("Terp AI Chat - Type 'quit' or 'exit' to exit\n")
     while True:
         try:
             message = input("You: ").strip()
