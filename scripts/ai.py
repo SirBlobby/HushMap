@@ -6,6 +6,9 @@ import json
 import sys
 import uuid
 
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
+
 CONVERSATION_ID = "5e3fb381-ce00-76db-0c03-7757f7521af1"
 CHAT_ID = "1eaa95ea-9b73-4850-8534-d1552401513a"
 
