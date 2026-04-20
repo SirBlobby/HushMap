@@ -14,7 +14,7 @@
 ## Setup Instructions
 
 ### Prerequisites
-1. **Python 3.9+** is strictly recommended to support asynchronous typing paradigms.
+1. **Python 3.10+** is strictly recommended to support asynchronous typing paradigms.
 2. **FFmpeg** must be successfully registered onto your OS PATH environments. This engine handles the core conversions decoding MP3 output arrays into 16-bit, 16kHz Mono arrays natively required for browser contexts:
    - **Ubuntu/Debian**: `sudo apt install ffmpeg`
    - **macOS**: `brew install ffmpeg`
@@ -33,15 +33,19 @@ pip install -r requirements.txt
 
 ### Configuration Tokens
 
-Provide runtime keys securely targeting TerpAI context queues and ElevenLabs synthesized avatars within a `.env` dotfile:
+Provide runtime keys securely targeting TerpAI context queues, Gemini Fallback, and ElevenLabs synthesized avatars within a `.env` dotfile:
 
 ```ini
 ELEVENLABS_API_KEY=sk_...
 ELEVENLABS_VOICE_ID=JBFqnCBsd6RMkjVDRZzb
 TERP_AI_BEARER_TOKEN=eyJhbGciOiJSUz...
 TERP_AI_CONVERSATION_ID=37fa27cc-...
+GEMINI_API_KEY=AIza...
 MONGODB_URI=mongodb+srv://...
+USE_DB=false
 ```
+
+*Note: `USE_DB` controls whether the application connects to MongoDB (`true`) or uses on-the-fly generated in-memory data for demonstrations (`false`).*
 
 To invoke the engine, simply execute Uvicorn across your `0.0.0.0` loopback:
 
@@ -58,7 +62,7 @@ uvicorn server:app --host 0.0.0.0 --port 8000
 This WebSocket proxy establishes a fully integrated multi-turn communication bridge seamlessly interacting between Edge node Hardware APIs (ESP32/M5GO/Browsers) and NLP architectures.
 
 1. **Int16 Byte Array Exchange**: Devices connect to `ws://<server_ip>:8000/ws/voice` and push raw binary frames asynchronously over the socket.
-2. **Contextual Augmentation**: The server waits for the `"stop_listening"` payload event to signify a completed audio snippet. That float array is cast through `faster-whisper` and combined seamlessly with real-time `MongoDB` decibel tracking telemetry parameters natively attached into the `TerpAI` user conversation chunk.
+2. **Contextual Augmentation**: The server waits for the `"stop_listening"` payload event to signify a completed audio snippet. That float array is cast through `faster-whisper` and combined seamlessly with real-time decibel tracking telemetry parameters natively attached into the AI user conversation chunk. We utilize **Terp AI** with an automatic, seamless fallback to **Gemini 2.5 Flash** if the primary Terp service is unavailable.
 3. **TTS Pipeline Rendering**: Output predictions are caught instantly, forwarded natively into the `ElevenLabs` TTS interface rendering `pcm_16000` wav codecs, and alerted back down to clients using a `tts_ready` dispatcher.
 
 ### Tensor Vision Endpoints (`/api/vision/room-status`)
@@ -90,8 +94,8 @@ Leveraging OpenCV bindings layered beneath a YOLOv8-driven bounding box topology
 
 ## Database Registries
 
-* `GET /api/study-rooms/history`: Pulls the active global repository of logged architectural noise measurements captured universally within the preceding 24 hours. Data payloads correspond geographically mapping `GeoJSON` nodes to front-end Mapbox topologies.
-* `GET /api/study-rooms`: Pulls generic unstructured noise lists directly unfiltered from Cosmos bounds. 
+* `GET /api/study-rooms/history`: Pulls the active global repository of logged architectural noise measurements captured universally within the preceding 24 hours. (Uses MongoDB or in-memory generated data based on the `USE_DB` flag).
+* `GET /api/study-rooms`: Pulls generic unstructured noise lists.
 
 > [!IMPORTANT]
 > The browser frontend strictly configures standard Web Audio API's `ScriptProcessorNode` interfaces routing data synchronously to this backend! Wait to close down pipelines until *after* all WS queues have successfully been delivered.

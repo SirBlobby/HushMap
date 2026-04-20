@@ -5,6 +5,7 @@
 	import { page } from '$app/stores';
 	import VoiceButton from '$lib/components/VoiceButton.svelte';
 	import LogoBadge from '$lib/components/LogoBadge.svelte';
+	import Footer from '$lib/components/Footer.svelte';
 
 	let { children } = $props();
 
@@ -15,7 +16,7 @@
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 
-<div class="h-screen w-full overflow-hidden bg-base text-slate-200 relative">
+<div class="h-screen w-full bg-base text-slate-200 relative flex flex-col overflow-y-auto overflow-x-hidden">
 
 	<!-- Floating Sidebar (Desktop) / Bottom Bar (Mobile) -->
 	<nav class="absolute bottom-4 md:bottom-auto md:top-1/2 left-1/2 md:left-6 -translate-x-1/2 md:translate-x-0 md:-translate-y-1/2 z-50 rounded-3xl glass-panel md:w-16 w-11/12 md:h-auto py-3 md:py-6 px-4 md:px-0 flex md:flex-col items-center justify-around md:justify-center gap-6 overflow-hidden" style="box-shadow: var(--shadow-glow-primary); border-left: 2px solid var(--color-neon-primary);">
@@ -45,6 +46,12 @@
 			<Icon icon="mdi:cog-outline" class="text-2xl" />
 			<span class="absolute left-full ml-4 px-2 py-1 bg-black/80 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none md:block hidden border border-white/10">Settings</span>
 		</a>
+
+		<!-- Nav Item: Info -->
+		<a href="/info" class="relative flex items-center justify-center p-3 rounded-2xl transition-all duration-300 hover:bg-white/10 group {$page.url.pathname === '/info' ? 'text-neon-blue drop-shadow-[0_0_10px_rgba(0,243,255,0.6)]' : 'text-slate-400 hover:text-white'}">
+			<Icon icon="mdi:information-outline" class="text-2xl" />
+			<span class="absolute left-full ml-4 px-2 py-1 bg-black/80 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none md:block hidden border border-white/10">Info</span>
+		</a>
 	</nav>
 
 	{#if showVoiceButton}
@@ -56,7 +63,9 @@
 	{/if}
 
 	<!-- Main Content Area -->
-	<main class="flex-1 relative w-full h-full overflow-hidden">
+	<main class="flex-1 relative w-full h-full overflow-y-auto overflow-x-hidden">
 		{@render children()}
 	</main>
+
+	<Footer />
 </div>

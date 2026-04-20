@@ -13,7 +13,7 @@
 
 <br/>
 
-HushMap bridges the gap between hardware sensors and top-tier artificial intelligence pipelines (e.g. **Terp AI**, **ElevenLabs**, **YOLOv8**), delivering a seamless real-time learning assistant combined with live noise and occupancy metrics.
+HushMap bridges the gap between hardware sensors and top-tier artificial intelligence pipelines (e.g. **Terp AI**, **ElevenLabs**, **YOLOv8**, and **Gemini**), delivering a seamless real-time learning assistant combined with live noise and occupancy metrics.
 
 ---
 
@@ -34,8 +34,9 @@ A responsive, high-fidelity PWA frontend written in Svelte 5 and styled seamless
 A blazing fast asynchronous HTTP server facilitating audio chunking and sensor metrics logic over full-duplex sockets.
 * **Core Capabilities**:
   * **Voice Socket Pipelining**: WebSockets (`/ws/voice`) that hook incoming 16-bit PCM arrays into `faster-whisper`.
-  * **LLM Context Augmentation**: Seamlessly aggregates live MongoDB noise statistics (Decibel levels per location) to feed contextual history to the TerpAI engine!
+  * **LLM Context Augmentation**: Seamlessly aggregates live noise statistics (Decibel levels per location) to feed contextual history to the AI engine. Uses **TerpAI** with a seamless fallback to **Gemini 2.5 Flash** if TerpAI is unavailable!
   * **Computer Vision Endpoint**: Exposes a `YOLOv8` tensor API (`/api/vision/room-status`) to parse webcam imagery, pinpoint seating capacities, and locate available chairs algorithmically.
+  * **Dynamic Data Source**: Data can either be fetched in real-time from a **MongoDB** database, or simulated on-the-fly via an in-memory generator depending on the `USE_DB` environment flag.
 * **Setup**:
   ```bash
   cd backend

@@ -8,9 +8,16 @@ import requests
 import json
 import base64
 import urllib.request
+import time
+import sys
 
-# import ssl
-# ssl._create_default_https_context = ssl._create_unverified_context
+# Add scripts directory to path to import fake data generator
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'scripts'))
+try:
+    from generate_fake_data import get_fake_data
+except ImportError:
+    print("Warning: Could not import get_fake_data from scripts/generate_fake_data.py")
+    def get_fake_data(locations): return []
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, File, UploadFile
 from fastapi.staticfiles import StaticFiles
@@ -21,6 +28,7 @@ from datetime import datetime, timedelta
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from vision import analyze_room_image
+from google import genai
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -37,11 +45,30 @@ app.add_middleware(
 )
 
 
+USE_DB = os.getenv("USE_DB", "false").lower() == "true"
+
 import certifi
-MONGO_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017/")
-mongo_client = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
-db = mongo_client.study_buddy_db
-study_rooms_collection = db.study_rooms
+if USE_DB:
+    MONGO_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017/")
+    mongo_client = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
+    db = mongo_client.study_buddy_db
+    study_rooms_collection = db.study_rooms
+else:
+    print("Running in in-memory mode. MongoDB is disabled. Set USE_DB=true to enable.")
+
+# Fake data cache
+_fake_data_cache = None
+_fake_data_cache_time = 0
+
+def _get_cached_fake_data():
+    global _fake_data_cache, _fake_data_cache_time
+    now = time.time()
+    # Cache for 5 minutes (300 seconds)
+    if _fake_data_cache is None or now - _fake_data_cache_time > 300:
+        # Assuming UMD_LOCATIONS is defined further down, but we can just use the global
+        _fake_data_cache = get_fake_data(UMD_LOCATIONS)
+        _fake_data_cache_time = now
+    return _fake_data_cache
 
 
 class GeoJSONPoint(BaseModel):
@@ -159,7 +186,7 @@ def _transcribe_pcm(pcm_data: bytes, sample_rate: int = SAMPLE_RATE) -> str:
             os.remove(tmp_path)
 
 def get_terp_ai_response(message: str) -> str:
-    """Send text to Terp AI and return the full response."""
+    """Send text to Terp AI and return the full response. Fallback to Gemini if needed."""
     url = f"https://terpai.umd.edu/api/internal/userConversations/{CONVERSATION_ID}/segments"
     payload = {
         "question": message,
@@ -175,7 +202,7 @@ def get_terp_ai_response(message: str) -> str:
     full_response = ""
     event = None
     try:
-        resp = requests.post(url, json=payload, headers=HEADERS, stream=True, timeout=30, verify=False)
+        resp = requests.post(url, json=payload, headers=HEADERS, stream=True, timeout=10, verify=False)
         resp.raise_for_status()
         for line in resp.iter_lines(decode_unicode=True):
             if not line:
@@ -188,13 +215,28 @@ def get_terp_ai_response(message: str) -> str:
                 if event == "response-updated":
                     full_response += decoded
         resp.close()
+        if full_response:
+            return full_response
+        else:
+            raise Exception("Empty response from Terp AI")
     except Exception as e:
-        print(f"Terp AI error: {e}")
-        return "I am sorry, there was an error connecting to Terp AI."
+        print(f"Terp AI error, falling back to Gemini: {e}")
+        try:
+            api_key = os.getenv("GEMINI_API_KEY")
+            if not api_key or api_key == "your_gemini_api_key":
+                return "Terp AI is unavailable and Gemini fallback is not configured."
+            client = genai.Client(api_key=api_key)
+            response = client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=message
+            )
+            return response.text
+        except Exception as gemini_e:
+            print(f"Gemini fallback error: {gemini_e}")
+            return "I am sorry, both Terp AI and the Gemini fallback encountered an error."
 
-    return full_response
 
-def _convert_to_pcm(audio_data: bytes, input_format: str = "mp3") -> bytes | None:
+def _convert_to_pcm(audio_data: bytes, input_format: str = "mp3") -> Optional[bytes]:
     """Convert audio data to 16-bit 16 kHz mono PCM using ffmpeg."""
     try:
         result = subprocess.run(
@@ -225,7 +267,7 @@ def _convert_to_pcm(audio_data: bytes, input_format: str = "mp3") -> bytes | Non
         print("ffmpeg conversion timed out")
         return None
 
-def _generate_tts(text: str) -> bytes | None:
+def _generate_tts(text: str) -> Optional[bytes]:
     """Generate speech audio from text using ElevenLabs TTS API."""
     api_key = os.getenv("ELEVENLABS_API_KEY")
     voice_id = os.getenv("ELEVENLABS_VOICE_ID", "JBFqnCBsd6RMkjVDRZzb")
@@ -373,22 +415,35 @@ UMD_LOCATIONS = [
 
 def get_latest_locations_context() -> str:
     """Fetch the latest stats for each known location to feed as AI context."""
-    twenty_four_hours_ago = datetime.utcnow() - timedelta(hours=24)
-    pipeline = [
-        {"$match": {"date": {"$gte": twenty_four_hours_ago}}},
-        {"$sort": {"date": -1}},
-        {"$group": {
-            "_id": "$room_id",
-            "latest_db": {"$first": "$db"},
-            "time": {"$first": "$date"}
-        }}
-    ]
-    latest_stats = list(study_rooms_collection.aggregate(pipeline))
+    room_dict = {loc["id"]: loc["name"] for loc in UMD_LOCATIONS}
+    
+    if USE_DB:
+        twenty_four_hours_ago = datetime.utcnow() - timedelta(hours=24)
+        pipeline = [
+            {"$match": {"date": {"$gte": twenty_four_hours_ago}}},
+            {"$sort": {"date": -1}},
+            {"$group": {
+                "_id": "$room_id",
+                "latest_db": {"$first": "$db"},
+                "time": {"$first": "$date"}
+            }}
+        ]
+        latest_stats = list(study_rooms_collection.aggregate(pipeline))
+    else:
+        fake_data = _get_cached_fake_data()
+        latest_stats_map = {}
+        # Data is naturally sorted chronologically in our generator, so reverse it
+        for d in reversed(fake_data):
+            if d["room_id"] not in latest_stats_map:
+                latest_stats_map[d["room_id"]] = {
+                    "_id": d["room_id"],
+                    "latest_db": d["db"],
+                    "time": d["date"]
+                }
+        latest_stats = list(latest_stats_map.values())
 
     if not latest_stats:
         return "No recent location noise stats available today."
-
-    room_dict = {loc["id"]: loc["name"] for loc in UMD_LOCATIONS}
 
     lines = ["Latest Study Room Stats:"]
     for stat in latest_stats:
@@ -426,8 +481,12 @@ async def create_study_room_data(data: StudyRoomData):
     if not data.date:
         data.date = datetime.utcnow()
     doc = data.dict()
-    result = study_rooms_collection.insert_one(doc)
-    return {"id": str(result.inserted_id), "room_id": data.room_id, "status": "success"}
+    
+    if USE_DB:
+        result = study_rooms_collection.insert_one(doc)
+        return {"id": str(result.inserted_id), "room_id": data.room_id, "status": "success"}
+    else:
+        return {"id": "dummy_id", "room_id": data.room_id, "status": "success (in-memory, not saved)"}
 
 @app.get("/api/study-rooms")
 async def get_study_room_data():
@@ -437,11 +496,17 @@ async def get_study_room_data():
 @app.get("/api/study-rooms/history")
 async def get_study_room_history():
     """Get all study room data from the last 24 hours."""
-    twenty_four_hours_ago = datetime.utcnow() - timedelta(hours=24)
-    rooms = list(study_rooms_collection.find(
-        {"date": {"$gte": twenty_four_hours_ago}},
-        {"_id": 0}
-    ).sort("date", -1))
+    if USE_DB:
+        twenty_four_hours_ago = datetime.utcnow() - timedelta(hours=24)
+        rooms = list(study_rooms_collection.find(
+            {"date": {"$gte": twenty_four_hours_ago}},
+            {"_id": 0}
+        ).sort("date", -1))
+    else:
+        rooms = _get_cached_fake_data()
+        # Ensure we don't leak ObjectIds or non-serializable stuff
+        # Dates are naturally sorted but let's reverse them to match MongoDB behavior (newest first)
+        rooms = list(reversed(rooms))
     return {"data": rooms}
 
 @app.get("/{full_path:path}")

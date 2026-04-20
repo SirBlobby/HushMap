@@ -9,4 +9,6 @@ ultralytics
 opencv-python-headless
 scipy
 pymongo
+certifi
+google-genai
 pydantic
