@@ -54,7 +54,7 @@
 			formData.append('file', blob, 'frame.jpg');
 			
 			try {
-				const response = await fetch('http://localhost:8000/api/vision/room-status', {
+				const response = await fetch('/api/vision/room-status', {
 					method: 'POST',
 					body: formData
 				});

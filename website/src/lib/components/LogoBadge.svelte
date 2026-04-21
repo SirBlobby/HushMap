@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { themeState } from '$lib/states/theme.svelte';
-	import logoDark from '../../../logo/HushMapLogo_dark.png';
-	import logoLight from '../../../logo/HushMapLogo_light.png';
+	import logoDark from '$lib/assets/logo/HushMapLogo_dark.png';
+	import logoLight from '$lib/assets/logo/HushMapLogo_light.png';
 
 	let expanded = $state(false);
 	let collapseTimer: ReturnType<typeof setTimeout>;

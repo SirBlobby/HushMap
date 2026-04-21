@@ -15,7 +15,7 @@
 	async function fetchStudyRoomData() {
 		try {
 			const res = await fetch(
-				"http://localhost:8000/api/study-rooms/history",
+				"/api/study-rooms/history",
 			);
 			if (res.ok) {
 				const json = await res.json();

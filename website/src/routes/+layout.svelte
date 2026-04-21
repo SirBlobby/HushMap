@@ -1,6 +1,6 @@
 <script lang="ts">
 	import './layout.css';
-	import favicon from '$lib/assets/favicon.svg';
+	import favicon from '$lib/assets/logo/logo.png';
 	import Icon from '@iconify/svelte';
 	import { page } from '$app/stores';
 	import VoiceButton from '$lib/components/VoiceButton.svelte';

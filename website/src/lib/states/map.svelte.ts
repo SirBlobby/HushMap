@@ -42,7 +42,7 @@ class MapState {
 		this.historyLoading = true;
 		try {
 
-			const res = await fetch('http://127.0.0.1:8000/api/study-rooms/history');
+			const res = await fetch('/api/study-rooms/history');
 			if (res.ok) {
 				const json = await res.json();
 				this.historyData = json.data;
