@@ -1,7 +1,7 @@
 <script lang="ts">
 </script>
 
-<footer class="fixed bottom-4 right-4 z-50 glass-panel rounded-2xl border border-white/10 px-6 py-3 flex items-center gap-6 shadow-[0_4px_20px_rgba(0,0,0,0.4)] backdrop-blur-md">
+<footer class="fixed bottom-4 right-24 z-50 glass-panel rounded-2xl border border-white/10 px-6 py-3 flex items-center gap-6 shadow-[0_4px_20px_rgba(0,0,0,0.4)] backdrop-blur-md">
     <span class="text-sm font-medium text-slate-300">
         Bitcamp 2026 Project
     </span>
